@@ -3,9 +3,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Target, Calendar, Clock } from "lucide-react";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const CommitmentSetup = () => {
   const [commitmentText, setCommitmentText] = useState("");
+  const [frequency, setFrequency] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
@@ -38,6 +46,14 @@ export const CommitmentSetup = () => {
                     I commit to
                     <br />
                     {commitmentText}
+                    {frequency && (
+                      <>
+                        <br />
+                        <span className="text-xl text-muted-foreground">
+                          {frequency}
+                        </span>
+                      </>
+                    )}
                   </>
                 ) : (
                   <>
@@ -78,17 +94,24 @@ export const CommitmentSetup = () => {
                   />
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="w-full justify-between group hover:bg-secondary/50"
-                  size="lg"
-                >
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-primary" />
-                    <span>Frequency</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="frequency"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Frequency
+                  </label>
+                  <Select value={frequency} onValueChange={setFrequency}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select frequency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="one-time">One time</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 <Button
                   variant="outline"
