@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const StakeSetup = () => {
   const navigate = useNavigate();
   const [selectedAmount, setSelectedAmount] = useState<string>("");
   const [customAmount, setCustomAmount] = useState<string>("");
+  const [selectedCharity, setSelectedCharity] = useState<string>("");
 
   const handleAmountSelect = (amount: string) => {
     setSelectedAmount(amount);
@@ -20,7 +22,7 @@ export const StakeSetup = () => {
   };
 
   const isFormValid = () => {
-    if (!selectedAmount) return false;
+    if (!selectedAmount || !selectedCharity) return false;
     if (selectedAmount === "custom" && !customAmount) return false;
     return true;
   };
@@ -31,14 +33,14 @@ export const StakeSetup = () => {
         {/* Progress Steps */}
         <div className="mb-12 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-muted bg-background">
-              <span className="text-sm text-muted-foreground">1</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <span className="text-sm">✓</span>
             </div>
-            <span className="text-sm text-muted-foreground">Create commitment</span>
+            <span className="text-sm text-primary font-medium">Create commitment</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="text-sm">✓</span>
+              <span className="text-sm">2</span>
             </div>
             <span className="text-sm font-medium text-primary">Add stake</span>
           </div>
@@ -50,21 +52,92 @@ export const StakeSetup = () => {
           </div>
         </div>
 
-        <div className="grid gap-8">
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight">Add stake</h1>
+            <p className="text-lg text-muted-foreground mt-2">
+              Choose your charity and the amount you want to stake.
+            </p>
+          </div>
+
+          {/* Charity Selection */}
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Choose your charity</h2>
+            <p className="text-muted-foreground mb-4">
+              In case you fail to meet your commitment, your money will go to this charity.
+            </p>
+            <Select value={selectedCharity} onValueChange={setSelectedCharity}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a charity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="animal-shelter">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">🐾</span>
+                      <div>
+                        <p className="font-medium">Animal Shelter</p>
+                        <p className="text-sm text-muted-foreground">Support animals that don't have an owner or food.</p>
+                      </div>
+                    </div>
+                  </div>
+                </SelectItem>
+                <SelectItem value="children-africa">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">🌍</span>
+                      <div>
+                        <p className="font-medium">Children in Africa</p>
+                        <p className="text-sm text-muted-foreground">Support health, education and nutrition programs for children in Africa.</p>
+                      </div>
+                    </div>
+                  </div>
+                </SelectItem>
+                <SelectItem value="cancer-research">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">🔬</span>
+                      <div>
+                        <p className="font-medium">Cancer Research</p>
+                        <p className="text-sm text-muted-foreground">Support & help to create a world immune to cancer.</p>
+                      </div>
+                    </div>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </Card>
+
           {/* Amount Selection */}
           <Card className="p-6">
-            <h2 className="text-2xl font-semibold tracking-tight text-gray-900">Select Amount</h2>
+            <h2 className="text-xl font-semibold mb-4">Select Amount</h2>
             <div className="space-y-4">
-              <Button variant="outline" onClick={() => handleAmountSelect("small")}>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => handleAmountSelect("small")}
+              >
                 Small Amount
               </Button>
-              <Button variant="outline" onClick={() => handleAmountSelect("medium")}>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => handleAmountSelect("medium")}
+              >
                 Medium Amount
               </Button>
-              <Button variant="outline" onClick={() => handleAmountSelect("large")}>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => handleAmountSelect("large")}
+              >
                 Large Amount
               </Button>
-              <Button variant="outline" onClick={() => handleAmountSelect("custom")}>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => handleAmountSelect("custom")}
+              >
                 Custom Amount
               </Button>
               {selectedAmount === "custom" && (
