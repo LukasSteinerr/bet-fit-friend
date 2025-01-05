@@ -71,7 +71,7 @@ export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
             <div
               key={index}
               onClick={() => handleStepClick(step)}
-              className={`flex items-center gap-2 ${
+              className={`flex flex-col items-center gap-2 ${
                 step.completed || step.active ? "cursor-pointer" : "cursor-not-allowed opacity-50"
               }`}
             >
