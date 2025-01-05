@@ -49,7 +49,7 @@ export const CommitmentSetup = () => {
       required_verifications: calculateRequiredVerifications(),
     };
 
-    navigate("/add-stake", { 
+    navigate("/stake", { 
       state: { commitmentData }
     });
   };
