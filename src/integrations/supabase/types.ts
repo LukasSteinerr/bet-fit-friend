@@ -18,12 +18,16 @@ export type Database = {
           end_date: string
           frequency: string
           id: string
+          last_verified_at: string | null
           name: string
           payment_method_id: string | null
           payment_verified: boolean | null
+          required_verifications: number | null
           stake_amount: number | null
+          status: string | null
           updated_at: string | null
           user_id: string | null
+          verification_count: number | null
           verification_method: string | null
         }
         Insert: {
@@ -34,12 +38,16 @@ export type Database = {
           end_date: string
           frequency: string
           id?: string
+          last_verified_at?: string | null
           name: string
           payment_method_id?: string | null
           payment_verified?: boolean | null
+          required_verifications?: number | null
           stake_amount?: number | null
+          status?: string | null
           updated_at?: string | null
           user_id?: string | null
+          verification_count?: number | null
           verification_method?: string | null
         }
         Update: {
@@ -50,12 +58,16 @@ export type Database = {
           end_date?: string
           frequency?: string
           id?: string
+          last_verified_at?: string | null
           name?: string
           payment_method_id?: string | null
           payment_verified?: boolean | null
+          required_verifications?: number | null
           stake_amount?: number | null
+          status?: string | null
           updated_at?: string | null
           user_id?: string | null
+          verification_count?: number | null
           verification_method?: string | null
         }
         Relationships: []

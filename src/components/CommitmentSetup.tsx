@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Check, Clock } from "lucide-react"; // Added Clock import here
+import { ChevronRight, Check, Clock } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -12,22 +13,41 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, differenceInDays, differenceInWeeks } from "date-fns";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ProgressSteps } from "./ProgressSteps";
+import { supabase } from "@/integrations/supabase/client";
 
 export const CommitmentSetup = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [commitmentText, setCommitmentText] = useState("");
   const [frequency, setFrequency] = useState("");
   const [date, setDate] = useState<Date>();
   const [difficulty, setDifficulty] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const showDifficulty = frequency === "Daily" || frequency === "Weekly";
+
+  const calculateRequiredVerifications = () => {
+    if (!date || !frequency) return 0;
+    
+    const today = new Date();
+    switch (frequency) {
+      case "Daily":
+        return differenceInDays(date, today);
+      case "Weekly":
+        return differenceInWeeks(date, today);
+      case "One Time":
+        return 1;
+      default:
+        return 0;
+    }
+  };
 
   const isFormValid = () => {
     if (!commitmentText || !frequency || !date) return false;
@@ -35,8 +55,48 @@ export const CommitmentSetup = () => {
     return true;
   };
 
-  const handleNext = () => {
-    navigate("/add-stake");
+  const handleNext = async () => {
+    if (!isFormValid()) return;
+    
+    setIsSubmitting(true);
+    try {
+      const requiredVerifications = calculateRequiredVerifications();
+      
+      const { data, error } = await supabase
+        .from('commitments')
+        .insert([
+          {
+            name: commitmentText,
+            frequency,
+            end_date: date?.toISOString(),
+            difficulty: showDifficulty ? difficulty : null,
+            required_verifications: requiredVerifications,
+            status: 'active'
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Commitment created!",
+        description: "Let's set up your stake amount.",
+      });
+
+      navigate("/add-stake", { 
+        state: { commitmentId: data.id }
+      });
+    } catch (error: any) {
+      console.error('Error creating commitment:', error);
+      toast({
+        title: "Error creating commitment",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -144,6 +204,7 @@ export const CommitmentSetup = () => {
                       selected={date}
                       onSelect={setDate}
                       initialFocus
+                      disabled={(date) => date < new Date()}
                     />
                   </PopoverContent>
                 </Popover>
@@ -178,9 +239,9 @@ export const CommitmentSetup = () => {
             size="lg" 
             className="px-8" 
             onClick={handleNext}
-            disabled={!isFormValid()}
+            disabled={!isFormValid() || isSubmitting}
           >
-            Next
+            {isSubmitting ? "Creating..." : "Next"}
           </Button>
         </div>
       </div>
