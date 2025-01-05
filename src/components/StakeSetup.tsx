@@ -8,13 +8,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 export const StakeSetup = () => {
+  const [selectedAmount, setSelectedAmount] = useState<string>("");
+  const [customAmount, setCustomAmount] = useState<string>("");
+
+  const handleAmountSelect = (amount: string) => {
+    setSelectedAmount(amount);
+    if (amount !== "custom") {
+      setCustomAmount("");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
       <div className="container max-w-3xl">
@@ -102,16 +109,40 @@ export const StakeSetup = () => {
               <label className="text-sm font-medium leading-none">
                 Amount
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  $
-                </span>
-                <input
-                  type="number"
-                  className="w-full rounded-md border border-input bg-background px-8 py-2 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="0.00"
-                  min="0"
-                />
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Hint: Try to find the Sweet Spot between what you can afford to lose but still hurts a little.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {["25", "50", "100", "custom"].map((amount) => (
+                    <Button
+                      key={amount}
+                      variant={selectedAmount === amount ? "default" : "outline"}
+                      className="h-16"
+                      onClick={() => handleAmountSelect(amount)}
+                    >
+                      {amount === "custom" ? (
+                        "Custom"
+                      ) : (
+                        <span className="text-lg">${amount}</span>
+                      )}
+                    </Button>
+                  ))}
+                </div>
+                {selectedAmount === "custom" && (
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      $
+                    </span>
+                    <Input
+                      type="number"
+                      className="pl-8"
+                      placeholder="0.00"
+                      value={customAmount}
+                      onChange={(e) => setCustomAmount(e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
