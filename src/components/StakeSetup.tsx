@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, PawPrint, Users, HeartPulse, Info } from "lucide-react";
+import { ChevronRight, PawPrint, Users, HeartPulse, Info, Check } from "lucide-react";
 import {
   Select,
   SelectContent,
