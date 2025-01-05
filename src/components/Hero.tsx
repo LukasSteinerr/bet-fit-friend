@@ -20,7 +20,7 @@ export const Hero = () => {
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Button
               className="group"
-              onClick={() => navigate("/create-commitment")}
+              onClick={() => navigate("/commitment")}
             >
               Start Your Challenge
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
