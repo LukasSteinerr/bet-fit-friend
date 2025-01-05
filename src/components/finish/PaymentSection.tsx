@@ -19,10 +19,21 @@ import {
   useElements 
 } from "@stripe/react-stripe-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// Initialize Stripe
-const stripePromise = loadStripe('pk_test_51OxLwqFXPWRhLGD8VjmzYFEFtXXwANqHDp8lP8F4WzFBrB3jbwkxhvnJvyqEWbtZEcmXHAXoJbLvhGhQPQWHqSw00vLzGWwEf');
+// Initialize Stripe with null, we'll set it later
+let stripePromise: Promise<any> | null = null;
+
+// Function to get Stripe instance
+const getStripe = async () => {
+  if (!stripePromise) {
+    // Get the public key from our Edge Function
+    const { data, error } = await supabase.functions.invoke('get-stripe-key');
+    if (error) throw error;
+    stripePromise = loadStripe(data.publicKey);
+  }
+  return stripePromise;
+};
 
 interface PaymentSectionProps {
   open: boolean;
@@ -114,7 +125,12 @@ export const PaymentSection = ({
   onPaymentVerification,
 }: PaymentSectionProps) => {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [stripeLoaded, setStripeLoaded] = useState(false);
   const isComplete = paymentVerified;
+
+  useEffect(() => {
+    getStripe().then(() => setStripeLoaded(true));
+  }, []);
 
   const handlePaymentSuccess = (methodId: string) => {
     onPaymentVerification(methodId);
@@ -152,9 +168,11 @@ export const PaymentSection = ({
                   Add Payment Method
                 </DialogTitle>
               </DialogHeader>
-              <Elements stripe={stripePromise}>
-                <PaymentForm onSuccess={handlePaymentSuccess} />
-              </Elements>
+              {stripeLoaded && (
+                <Elements stripe={stripePromise}>
+                  <PaymentForm onSuccess={handlePaymentSuccess} />
+                </Elements>
+              )}
             </DialogContent>
           </Dialog>
 
