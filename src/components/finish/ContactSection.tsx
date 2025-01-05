@@ -4,7 +4,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, Globe } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -44,85 +44,88 @@ export const ContactSection = ({
     { code: "+61", country: "Australia" },
   ];
 
-  // Section is complete if all required fields are filled
   const isComplete = 
     contactDetails.firstName.trim() !== '' && 
     contactDetails.email.trim() !== '' && 
     contactDetails.phone.trim() !== '';
 
+  const displayValue = isComplete 
+    ? `${contactDetails.firstName} • ${contactDetails.phone}`
+    : undefined;
+
   return (
     <>
-      <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
+      <CollapsibleTrigger 
+        className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground"
+      >
         <div className="flex items-center gap-2">
           <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Contact</span>
+          {displayValue && (
+            <span className="text-sm text-muted-foreground">{displayValue}</span>
+          )}
         </div>
-        <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronRight className={`h-4 w-4 transition-transform ${open ? 'rotate-90' : ''}`} />
       </CollapsibleTrigger>
-      <CollapsibleContent className="p-4 pt-0">
+      <CollapsibleContent className="space-y-4 p-4">
+        <div className="space-y-2">
+          <h3 className="font-medium">Add your contact details</h3>
+          <p className="text-sm text-muted-foreground">
+            Add your name, e-mail and phone number.
+          </p>
+        </div>
         <div className="space-y-4">
           <div className="space-y-2">
-            <h3 className="font-medium">Add your contact details</h3>
-            <p className="text-sm text-muted-foreground">
-              Add your name, e-mail and phone number.
-            </p>
+            <Label htmlFor="firstName">First Name</Label>
+            <Input
+              id="firstName"
+              name="firstName"
+              placeholder="Your first name"
+              value={contactDetails.firstName}
+              onChange={onContactChange}
+            />
           </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Your e-mail"
+              value={contactDetails.email}
+              onChange={onContactChange}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <div className="flex gap-2">
+              <Select
+                value={contactDetails.countryCode}
+                onValueChange={onCountryCodeChange}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countryCodes.map((country) => (
+                    <SelectItem key={country.code} value={country.code}>
+                      <span>{country.code}</span>
+                      <span className="ml-2 text-muted-foreground">
+                        {country.country}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Input
-                id="firstName"
-                name="firstName"
-                placeholder="Your first name"
-                value={contactDetails.firstName}
+                id="phone"
+                name="phone"
+                type="tel"
+                placeholder="Your phone number"
+                value={contactDetails.phone}
                 onChange={onContactChange}
+                className="flex-1"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Your e-mail"
-                value={contactDetails.email}
-                onChange={onContactChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <div className="flex gap-2">
-                <Select
-                  value={contactDetails.countryCode}
-                  onValueChange={onCountryCodeChange}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Select country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countryCodes.map((country) => (
-                      <SelectItem key={country.code} value={country.code}>
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4" />
-                          <span>{country.code}</span>
-                          <span className="text-muted-foreground">
-                            {country.country}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="Your phone number"
-                  value={contactDetails.phone}
-                  onChange={onContactChange}
-                  className="flex-1"
-                />
-              </div>
             </div>
           </div>
         </div>

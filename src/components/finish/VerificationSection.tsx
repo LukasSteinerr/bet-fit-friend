@@ -3,7 +3,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface VerificationSectionProps {
   open: boolean;
@@ -12,29 +12,35 @@ interface VerificationSectionProps {
   onVerificationMethodChange: (method: 'sms' | 'whatsapp') => void;
 }
 
-export const VerificationSection = ({ 
-  open, 
+export const VerificationSection = ({
+  open,
   onOpenChange,
   verificationMethod,
   onVerificationMethodChange,
 }: VerificationSectionProps) => {
-  // Section is complete if a verification method is selected
   const isComplete = verificationMethod !== null;
 
   return (
     <>
-      <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
+      <CollapsibleTrigger 
+        className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground"
+      >
         <div className="flex items-center gap-2">
           <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Verification</span>
+          {isComplete && (
+            <span className="text-sm text-muted-foreground">
+              {verificationMethod === 'whatsapp' ? 'WhatsApp' : 'SMS'}
+            </span>
+          )}
         </div>
-        <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronRight className={`h-4 w-4 transition-transform ${open ? 'rotate-90' : ''}`} />
       </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-4 p-4 pt-0">
+      <CollapsibleContent className="space-y-4 p-4">
         <div className="space-y-2">
-          <h3 className="font-medium">Choose your verification</h3>
+          <h3 className="font-medium">Choose verification method</h3>
           <p className="text-sm text-muted-foreground">
-            Through this channel you will receive weekly reminders where you'll be asked to verify that you took action.
+            Select how you want to receive verification requests.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

@@ -139,50 +139,51 @@ export const PaymentSection = ({
 
   return (
     <>
-      <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
+      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground">
         <div className="flex items-center gap-2">
           <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Payment Method</span>
+          {isComplete && (
+            <span className="text-sm text-muted-foreground">Card saved</span>
+          )}
         </div>
         <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
       </CollapsibleTrigger>
-      <CollapsibleContent className="p-4 pt-0">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h3 className="font-medium">Add payment details</h3>
-            <p className="text-sm text-muted-foreground">
-              Your card will only be charged if you fail your commitment.
-            </p>
-          </div>
+      <CollapsibleContent className="space-y-4 p-4">
+        <div className="space-y-2">
+          <h3 className="font-medium">Add payment details</h3>
+          <p className="text-sm text-muted-foreground">
+            Your card will only be charged if you fail your commitment.
+          </p>
+        </div>
 
-          <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="w-full" size="lg">
-                {paymentVerified ? 'Update payment method' : 'Add payment method'}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Add Payment Method
-                </DialogTitle>
-              </DialogHeader>
-              {stripeLoaded && (
-                <Elements stripe={stripePromise}>
-                  <PaymentForm onSuccess={handlePaymentSuccess} />
-                </Elements>
-              )}
-            </DialogContent>
-          </Dialog>
+        <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="w-full" size="lg">
+              {paymentVerified ? 'Update payment method' : 'Add payment method'}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Add Payment Method
+              </DialogTitle>
+            </DialogHeader>
+            {stripeLoaded && (
+              <Elements stripe={stripePromise}>
+                <PaymentForm onSuccess={handlePaymentSuccess} />
+              </Elements>
+            )}
+          </DialogContent>
+        </Dialog>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Info className="h-4 w-4" />
-            <p>
-              Your card details are securely stored by Stripe and will only be charged 
-              if you fail to meet your commitment.
-            </p>
-          </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Info className="h-4 w-4" />
+          <p>
+            Your card details are securely stored by Stripe and will only be charged 
+            if you fail to meet your commitment.
+          </p>
         </div>
       </CollapsibleContent>
     </>
