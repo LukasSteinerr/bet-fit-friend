@@ -28,6 +28,12 @@ export const CommitmentSetup = () => {
 
   const showDifficulty = frequency === "Daily" || frequency === "Weekly";
 
+  const isFormValid = () => {
+    if (!commitmentText || !frequency || !date) return false;
+    if (showDifficulty && !difficulty) return false;
+    return true;
+  };
+
   const handleNext = () => {
     navigate("/add-stake");
   };
@@ -187,7 +193,12 @@ export const CommitmentSetup = () => {
         </div>
 
         <div className="mt-8 flex justify-end">
-          <Button size="lg" className="px-8" onClick={handleNext}>
+          <Button 
+            size="lg" 
+            className="px-8" 
+            onClick={handleNext}
+            disabled={!isFormValid()}
+          >
             Next
           </Button>
         </div>
