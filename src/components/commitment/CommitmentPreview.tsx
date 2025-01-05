@@ -22,15 +22,17 @@ export const CommitmentPreview = ({
         <h2 className="text-4xl font-semibold tracking-tight text-gray-900">
           {commitmentText ? (
             <>
-              I commit to {commitmentText}.
-              {frequency && (
-                <div className="mt-2 text-xl text-muted-foreground">
-                  {frequency}
-                </div>
-              )}
+              I commit to {commitmentText}
               {date && (
                 <div className="mt-2 text-xl text-muted-foreground">
-                  Until {format(date, "PPP")}
+                  {frequency === "One Time" ? (
+                    <>by {format(date, "PPP")}</>
+                  ) : (
+                    <>
+                      {frequency}
+                      <div>Until {format(date, "PPP")}</div>
+                    </>
+                  )}
                 </div>
               )}
               {difficulty && showDifficulty && (
