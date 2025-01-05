@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface ProgressStep {
   number: string | "✓";
@@ -14,6 +14,7 @@ interface ProgressStepsProps {
 
 export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const steps: ProgressStep[] = [
     {
@@ -39,13 +40,22 @@ export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
     },
   ];
 
+  const handleStepClick = (step: ProgressStep) => {
+    // Only allow navigation to completed steps or the current step
+    if (step.completed || step.active) {
+      navigate(step.route);
+    }
+  };
+
   return (
     <div className="mb-12 flex items-center justify-between">
       {steps.map((step, index) => (
         <div
           key={index}
-          onClick={() => navigate(step.route)}
-          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => handleStepClick(step)}
+          className={`flex items-center gap-2 ${
+            step.completed || step.active ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+          }`}
         >
           <div
             className={`flex h-8 w-8 items-center justify-center rounded-full ${
