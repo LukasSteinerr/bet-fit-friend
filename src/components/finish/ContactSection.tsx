@@ -44,11 +44,17 @@ export const ContactSection = ({
     { code: "+61", country: "Australia" },
   ];
 
+  // Section is complete if all required fields are filled
+  const isComplete = 
+    contactDetails.firstName.trim() !== '' && 
+    contactDetails.email.trim() !== '' && 
+    contactDetails.phone.trim() !== '';
+
   return (
     <>
       <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${open ? 'bg-primary' : 'bg-muted'}`} />
+          <div className={`h-2 w-2 rounded-full ${isComplete || open ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Contact</span>
         </div>
         <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />

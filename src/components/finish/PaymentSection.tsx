@@ -22,12 +22,16 @@ interface PaymentSectionProps {
 
 export const PaymentSection = ({ open, onOpenChange }: PaymentSectionProps) => {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [paymentVerified, setPaymentVerified] = useState(false);
+
+  // Section is complete if payment has been verified
+  const isComplete = paymentVerified;
 
   return (
     <>
       <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${open ? 'bg-primary' : 'bg-muted'}`} />
+          <div className={`h-2 w-2 rounded-full ${isComplete || open ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Payment Method</span>
         </div>
         <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -50,7 +54,13 @@ export const PaymentSection = ({ open, onOpenChange }: PaymentSectionProps) => {
             </p>
           </div>
 
-          <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+          <Dialog open={paymentDialogOpen} onOpenChange={(open) => {
+            setPaymentDialogOpen(open);
+            if (!open && !paymentVerified) {
+              // This would be where you'd verify the payment details were saved
+              setPaymentVerified(true);
+            }
+          }}>
             <DialogTrigger asChild>
               <Button variant="outline" className="w-full" size="lg">
                 Verify payment method
