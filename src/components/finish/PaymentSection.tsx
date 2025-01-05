@@ -3,7 +3,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Info, CreditCard } from "lucide-react";
+import { ChevronDown, Info, CreditCard, CheckCircle2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -144,7 +144,10 @@ export const PaymentSection = ({
           <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Payment Method</span>
           {isComplete && (
-            <span className="text-sm text-muted-foreground">Card saved</span>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Card saved</span>
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+            </div>
           )}
         </div>
         <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
