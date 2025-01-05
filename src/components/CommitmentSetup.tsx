@@ -10,10 +10,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export const CommitmentSetup = () => {
   const [commitmentText, setCommitmentText] = useState("");
   const [frequency, setFrequency] = useState("");
+  const [date, setDate] = useState<Date>();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
@@ -51,6 +59,11 @@ export const CommitmentSetup = () => {
                     {frequency && (
                       <div className="mt-2 text-xl text-muted-foreground">
                         {frequency}
+                      </div>
+                    )}
+                    {date && (
+                      <div className="mt-2 text-xl text-muted-foreground">
+                        Until {format(date, "PPP")}
                       </div>
                     )}
                   </>
@@ -104,17 +117,36 @@ export const CommitmentSetup = () => {
                 </Select>
               </div>
 
-              <Button
-                variant="outline"
-                className="w-full justify-between"
-                size="lg"
-              >
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <span>Duration</span>
-                </div>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none">
+                  Duration
+                </label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between"
+                      size="lg"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span>
+                          {date ? format(date, "PPP") : "Choose end date"}
+                        </span>
+                      </div>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </div>
         </div>
