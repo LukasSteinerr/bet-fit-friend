@@ -2,8 +2,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Target, Calendar, Clock } from "lucide-react";
+import { useState } from "react";
 
 export const CommitmentSetup = () => {
+  const [commitmentText, setCommitmentText] = useState("");
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
       <div className="container max-w-3xl animate-fade-in">
@@ -30,9 +33,19 @@ export const CommitmentSetup = () => {
           <Card className="relative overflow-hidden border-none bg-gradient-to-br from-secondary/50 to-warning/30 p-8 transition-transform hover:scale-[1.02] animate-float">
             <div className="relative z-10 flex h-full flex-col justify-center">
               <h2 className="text-3xl font-semibold tracking-tight">
-                You are one
-                <br />
-                commitment away
+                {commitmentText ? (
+                  <>
+                    I commit to
+                    <br />
+                    {commitmentText}
+                  </>
+                ) : (
+                  <>
+                    You are one
+                    <br />
+                    commitment away
+                  </>
+                )}
               </h2>
             </div>
           </Card>
@@ -60,6 +73,8 @@ export const CommitmentSetup = () => {
                     id="commitment-name"
                     placeholder="E.g. 'Going to the Gym'"
                     className="text-base md:text-sm"
+                    value={commitmentText}
+                    onChange={(e) => setCommitmentText(e.target.value)}
                   />
                 </div>
 
