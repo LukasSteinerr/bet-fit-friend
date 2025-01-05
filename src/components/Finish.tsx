@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useLocation } from "react-router-dom";
 import { Collapsible } from "@/components/ui/collapsible";
 import { VerificationSection } from "./finish/VerificationSection";
 import { ContactSection } from "./finish/ContactSection";
@@ -10,43 +8,10 @@ import { FinishLayout } from "./finish/FinishLayout";
 import { AuthSection } from "./finish/AuthSection";
 import { ErrorSection } from "./finish/ErrorSection";
 import { ConfirmDialog } from "./finish/ConfirmDialog";
-import { format } from "date-fns";
-
-const sendConfirmationEmail = async (emailData: {
-  to: string;
-  firstName: string;
-  commitmentName: string;
-  frequency: string;
-  endDate: string;
-  stakeAmount: number;
-  charity: string;
-}) => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-confirmation`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify(emailData),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to send confirmation email");
-    }
-  } catch (error) {
-    console.error("Error sending confirmation email:", error);
-    // We don't want to block the commitment creation if email fails
-  }
-};
+import { useCommitmentSubmission } from "./finish/useCommitmentSubmission";
 
 export const Finish = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
   const [verificationOpen, setVerificationOpen] = useState(true);
   const [contactOpen, setContactOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
@@ -58,9 +23,10 @@ export const Finish = () => {
     phone: "",
     countryCode: "+1",
   });
-  const [paymentVerified, setPaymentVerified] = useState(false);
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
   const [showAuth, setShowAuth] = useState(false);
+
+  const { handleSubmit, isSubmitting } = useCommitmentSubmission();
 
   const commitmentData = location.state?.commitmentData;
   const stakeData = location.state?.stakeData;
@@ -90,67 +56,24 @@ export const Finish = () => {
 
   const handlePaymentVerification = (methodId: string) => {
     setPaymentMethodId(methodId);
-    setPaymentVerified(true);
   };
 
-  const handleConfirm = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const commitmentRecord = {
-        name: commitmentData.name,
-        frequency: commitmentData.frequency,
-        end_date: commitmentData.end_date,
-        difficulty: commitmentData.difficulty,
-        required_verifications: commitmentData.required_verifications,
-        status: 'active',
-        stake_amount: stakeData.amount,
-        charity: stakeData.charity,
-        verification_method: verificationMethod,
-        contact_details: contactDetails,
-        payment_verified: paymentVerified,
-        payment_method_id: paymentMethodId,
-        ...(session?.user && { user_id: session.user.id })
-      };
-
-      const { error } = await supabase
-        .from('commitments')
-        .insert([commitmentRecord]);
-
-      if (error) throw error;
-
-      // Send confirmation email
-      await sendConfirmationEmail({
-        to: contactDetails.email,
-        firstName: contactDetails.firstName,
-        commitmentName: commitmentData.name,
-        frequency: commitmentData.frequency,
-        endDate: format(new Date(commitmentData.end_date), 'PPP'),
-        stakeAmount: stakeData.amount,
-        charity: stakeData.charity,
-      });
-
-      toast({
-        title: "Success!",
-        description: "Your commitment has been created",
-      });
-      
-      navigate('/');
-    } catch (error: any) {
-      console.error('Error saving commitment:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save your commitment",
-        variant: "destructive",
-      });
-    }
+  const handleConfirm = () => {
+    handleSubmit(
+      commitmentData,
+      stakeData,
+      contactDetails,
+      verificationMethod,
+      paymentMethodId
+    );
+    setShowConfirmDialog(false);
   };
 
   const isComplete = verificationMethod && 
     contactDetails.firstName && 
     contactDetails.email && 
     contactDetails.phone && 
-    paymentVerified;
+    paymentMethodId;
 
   if (showAuth) {
     return <AuthSection />;
@@ -197,7 +120,7 @@ export const Finish = () => {
           <PaymentSection 
             open={paymentOpen}
             onOpenChange={setPaymentOpen}
-            paymentVerified={paymentVerified}
+            paymentVerified={!!paymentMethodId}
             onPaymentVerification={handlePaymentVerification}
           />
         </Collapsible>
