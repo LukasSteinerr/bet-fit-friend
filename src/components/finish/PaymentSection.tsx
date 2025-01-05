@@ -11,15 +11,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { 
+  Elements, 
+  CardElement,
+  useStripe, 
+  useElements 
+} from "@stripe/react-stripe-js";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 // Initialize Stripe
-const stripePromise = loadStripe('pk_test_51OxLwqFXPWRhLGD8VjmzYFEFtXXwANqHDp8lP8F4WzFBrB3jbwkxhvnJvyqEWbtZEcmXHAXoJbLvhGhQZPQWHqSw00vLzGWwEf');
+const stripePromise = loadStripe('pk_test_51OxLwqFXPWRhLGD8VjmzYFEFtXXwANqHDp8lP8F4WzFBrB3jbwkxhvnJvyqEWbtZEcmXHAXoJbLvhGhQPQWHqSw00vLzGWwEf');
 
 interface PaymentSectionProps {
   open: boolean;
@@ -44,7 +47,7 @@ const PaymentForm = ({ onSuccess }: { onSuccess: (methodId: string) => void }) =
     try {
       const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
-        card: elements.getElement(PaymentElement)!,
+        card: elements.getElement(CardElement)!,
       });
 
       if (stripeError) {
@@ -72,7 +75,24 @@ const PaymentForm = ({ onSuccess }: { onSuccess: (methodId: string) => void }) =
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement />
+      <div className="p-3 border rounded-md">
+        <CardElement 
+          options={{
+            style: {
+              base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': {
+                  color: '#aab7c4',
+                },
+              },
+              invalid: {
+                color: '#9e2146',
+              },
+            },
+          }}
+        />
+      </div>
       {error && (
         <div className="text-sm text-red-500">{error}</div>
       )}
