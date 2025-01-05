@@ -22,6 +22,9 @@ export const CommitmentSetup = () => {
   const [commitmentText, setCommitmentText] = useState("");
   const [frequency, setFrequency] = useState("");
   const [date, setDate] = useState<Date>();
+  const [difficulty, setDifficulty] = useState("");
+
+  const showDifficulty = frequency === "Daily" || frequency === "Weekly";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
@@ -64,6 +67,11 @@ export const CommitmentSetup = () => {
                     {date && (
                       <div className="mt-2 text-xl text-muted-foreground">
                         Until {format(date, "PPP")}
+                      </div>
+                    )}
+                    {difficulty && showDifficulty && (
+                      <div className="mt-2 text-xl text-muted-foreground">
+                        Difficulty: {difficulty}
                       </div>
                     )}
                   </>
@@ -147,6 +155,27 @@ export const CommitmentSetup = () => {
                   </PopoverContent>
                 </Popover>
               </div>
+
+              {showDifficulty && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none">
+                    Difficulty
+                  </label>
+                  <Select value={difficulty} onValueChange={setDifficulty}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose difficulty level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Easy">Easy (60%)</SelectItem>
+                      <SelectItem value="Medium">Medium (80%)</SelectItem>
+                      <SelectItem value="Hard">Hard (100%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground">
+                    Determines what percentage of your commitment needs to be reached.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
