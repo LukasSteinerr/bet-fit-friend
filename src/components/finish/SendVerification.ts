@@ -18,15 +18,18 @@ export const sendVerification = async (
 
       if (response.error) {
         // Check if it's a geographic restriction error
-        if (response.error.message?.includes('Permission') || 
-            response.error.message?.includes('region') ||
-            response.data?.error?.includes('Permission') ||
-            response.data?.error?.includes('region')) {
+        const errorBody = typeof response.error === 'string' 
+          ? response.error 
+          : response.error.message || '';
+          
+        if (errorBody.includes('Permission') || 
+            errorBody.includes('region') ||
+            errorBody.toLowerCase().includes('not enabled for this country')) {
           throw new Error(
-            'SMS sending is not enabled for this country. Please try a different phone number or contact support.'
+            'SMS verification is not available in your country yet. Please use WhatsApp verification instead, or contact support for assistance.'
           );
         }
-        throw new Error(response.error.message);
+        throw new Error(response.error.message || 'Failed to send SMS verification');
       }
 
       return response.data;

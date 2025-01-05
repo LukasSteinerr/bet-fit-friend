@@ -68,14 +68,24 @@ export const useCommitmentSubmission = () => {
             contactDetails.countryCode,
             'sms'
           );
-        } catch (smsError) {
+        } catch (smsError: any) {
           console.error('SMS verification error:', smsError);
-          // Continue with the flow even if SMS fails
-          toast({
-            title: "SMS Notification Failed",
-            description: "Your commitment was created but we couldn't send the SMS verification. You can try again later.",
-            variant: "destructive",
-          });
+          
+          // Check if it's a geographic restriction error
+          if (smsError.message?.includes('not available in your country')) {
+            toast({
+              title: "SMS Not Available",
+              description: smsError.message,
+              variant: "destructive",
+            });
+            // Allow user to continue but they'll need to change verification method later
+          } else {
+            toast({
+              title: "SMS Verification Failed",
+              description: "We couldn't send the SMS verification. You can try again later or contact support.",
+              variant: "destructive",
+            });
+          }
         }
       }
 
@@ -95,7 +105,6 @@ export const useCommitmentSubmission = () => {
 
         if (emailError) {
           console.error('Email confirmation error:', emailError);
-          // Continue with the flow even if email fails
           toast({
             title: "Email Notification Failed",
             description: "Your commitment was created but we couldn't send the confirmation email. Please check your commitment details in your dashboard.",
