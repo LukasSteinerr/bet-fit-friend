@@ -31,6 +31,11 @@ export const Finish = () => {
   const commitmentData = location.state?.commitmentData;
   const stakeData = location.state?.stakeData;
 
+  // If we don't have the required data, show the error section
+  if (!commitmentData || !stakeData) {
+    return <ErrorSection />;
+  }
+
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setContactDetails((prev) => ({
@@ -56,15 +61,6 @@ export const Finish = () => {
   };
 
   const handleSubmit = async () => {
-    if (!commitmentData || !stakeData) {
-      toast({
-        title: "Error",
-        description: "Missing commitment or stake information",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -114,10 +110,6 @@ export const Finish = () => {
 
   if (showAuth) {
     return <AuthSection />;
-  }
-
-  if (!commitmentData || !stakeData) {
-    return <ErrorSection />;
   }
 
   return (
