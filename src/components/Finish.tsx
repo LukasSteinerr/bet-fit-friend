@@ -9,15 +9,7 @@ import { PaymentSection } from "./finish/PaymentSection";
 import { FinishLayout } from "./finish/FinishLayout";
 import { AuthSection } from "./finish/AuthSection";
 import { ErrorSection } from "./finish/ErrorSection";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "./finish/ConfirmDialog";
 import { format } from "date-fns";
 
 export const Finish = () => {
@@ -42,7 +34,6 @@ export const Finish = () => {
   const commitmentData = location.state?.commitmentData;
   const stakeData = location.state?.stakeData;
 
-  // If we don't have the required data, show the error section
   if (!location.state || !commitmentData || !stakeData) {
     return <ErrorSection />;
   }
@@ -71,6 +62,37 @@ export const Finish = () => {
     setPaymentVerified(true);
   };
 
+  const sendConfirmationEmail = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-confirmation`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            to: contactDetails.email,
+            firstName: contactDetails.firstName,
+            commitmentName: commitmentData.name,
+            frequency: commitmentData.frequency,
+            endDate: format(new Date(commitmentData.end_date), 'PPP'),
+            stakeAmount: stakeData.amount,
+            charity: stakeData.charity,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send confirmation email");
+      }
+    } catch (error) {
+      console.error("Error sending confirmation email:", error);
+      // We don't want to block the commitment creation if email fails
+    }
+  };
+
   const handleConfirm = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -96,6 +118,9 @@ export const Finish = () => {
         .insert([commitmentRecord]);
 
       if (error) throw error;
+
+      // Send confirmation email
+      await sendConfirmationEmail();
 
       toast({
         title: "Success!",
@@ -170,56 +195,15 @@ export const Finish = () => {
         </Collapsible>
       </FinishLayout>
 
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Confirm your commitment</DialogTitle>
-            <DialogDescription>
-              Please review your commitment details before finalizing.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <h4 className="font-medium">Commitment</h4>
-              <p className="text-sm text-muted-foreground">
-                {commitmentData.name}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {commitmentData.frequency} until {format(new Date(commitmentData.end_date), 'PPP')}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">Stake</h4>
-              <p className="text-sm text-muted-foreground">
-                ${stakeData.amount} to {stakeData.charity}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">Contact</h4>
-              <p className="text-sm text-muted-foreground">
-                {contactDetails.firstName} • {contactDetails.email}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {contactDetails.countryCode} {contactDetails.phone}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">Verification</h4>
-              <p className="text-sm text-muted-foreground">
-                Via {verificationMethod === 'whatsapp' ? 'WhatsApp' : 'SMS'}
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleConfirm}>
-              Confirm & Create
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+        commitmentData={commitmentData}
+        stakeData={stakeData}
+        contactDetails={contactDetails}
+        verificationMethod={verificationMethod}
+        onConfirm={handleConfirm}
+      />
     </>
   );
 };
