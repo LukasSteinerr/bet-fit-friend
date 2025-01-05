@@ -8,6 +8,8 @@ import { ProgressSteps } from "./ProgressSteps";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
 
 export const Finish = () => {
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ export const Finish = () => {
   });
   const [paymentVerified, setPaymentVerified] = useState(false);
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
 
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -51,14 +54,10 @@ export const Finish = () => {
 
   const handleSubmit = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to create a commitment",
-          variant: "destructive",
-        });
+      if (!session) {
+        setShowAuth(true);
         return;
       }
 
@@ -69,8 +68,8 @@ export const Finish = () => {
           contact_details: contactDetails,
           payment_verified: paymentVerified,
           payment_method_id: paymentMethodId,
+          user_id: session.user.id
         })
-        .eq('user_id', user.id)
         .is('payment_verified', null);
 
       if (error) throw error;
@@ -96,6 +95,25 @@ export const Finish = () => {
     contactDetails.email && 
     contactDetails.phone && 
     paymentVerified;
+
+  if (showAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
+        <div className="container max-w-md">
+          <h2 className="mb-8 text-center text-2xl font-semibold tracking-tight">
+            Create an account to complete your commitment
+          </h2>
+          <Auth
+            supabaseClient={supabase}
+            appearance={{ theme: ThemeSupa }}
+            providers={["google"]}
+            redirectTo={`${window.location.origin}/finish`}
+            onlyThirdPartyProviders
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
