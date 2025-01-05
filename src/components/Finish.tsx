@@ -69,11 +69,11 @@ export const Finish = () => {
     setShowConfirmDialog(false);
   };
 
-  const isComplete = verificationMethod && 
+  const isComplete = Boolean(verificationMethod && 
     contactDetails.firstName && 
     contactDetails.email && 
     contactDetails.phone && 
-    paymentMethodId;
+    paymentMethodId);
 
   if (showAuth) {
     return <AuthSection />;
