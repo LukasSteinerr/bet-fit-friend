@@ -56,20 +56,17 @@ export const Finish = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (!session) {
-        setShowAuth(true);
-        return;
-      }
+      const updateData = {
+        verification_method: verificationMethod,
+        contact_details: contactDetails,
+        payment_verified: paymentVerified,
+        payment_method_id: paymentMethodId,
+        ...(session?.user && { user_id: session.user.id })
+      };
 
       const { error } = await supabase
         .from('commitments')
-        .update({
-          verification_method: verificationMethod,
-          contact_details: contactDetails,
-          payment_verified: paymentVerified,
-          payment_method_id: paymentMethodId,
-          user_id: session.user.id
-        })
+        .update(updateData)
         .is('payment_verified', null);
 
       if (error) throw error;
