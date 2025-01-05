@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Target, Calendar, Clock, Check } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -19,12 +20,17 @@ import {
 } from "@/components/ui/popover";
 
 export const CommitmentSetup = () => {
+  const navigate = useNavigate();
   const [commitmentText, setCommitmentText] = useState("");
   const [frequency, setFrequency] = useState("");
   const [date, setDate] = useState<Date>();
   const [difficulty, setDifficulty] = useState("");
 
   const showDifficulty = frequency === "Daily" || frequency === "Weekly";
+
+  const handleNext = () => {
+    navigate("/add-stake");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
@@ -181,7 +187,7 @@ export const CommitmentSetup = () => {
         </div>
 
         <div className="mt-8 flex justify-end">
-          <Button size="lg" className="px-8">
+          <Button size="lg" className="px-8" onClick={handleNext}>
             Next
           </Button>
         </div>
