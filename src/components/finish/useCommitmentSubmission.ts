@@ -19,6 +19,14 @@ export const useCommitmentSubmission = () => {
   ) => {
     setIsSubmitting(true);
     try {
+      console.log('Starting commitment submission...', {
+        commitmentData,
+        stakeData,
+        contactDetails,
+        verificationMethod,
+        paymentMethodId
+      });
+
       const { data: { session } } = await supabase.auth.getSession();
       
       const commitmentRecord = {
@@ -37,33 +45,66 @@ export const useCommitmentSubmission = () => {
         ...(session?.user && { user_id: session.user.id })
       };
 
-      const { error: commitmentError } = await supabase
-        .from('commitments')
-        .insert([commitmentRecord]);
+      console.log('Inserting commitment record:', commitmentRecord);
 
-      if (commitmentError) throw commitmentError;
+      const { data: insertedCommitment, error: commitmentError } = await supabase
+        .from('commitments')
+        .insert([commitmentRecord])
+        .select()
+        .single();
+
+      if (commitmentError) {
+        console.error('Error inserting commitment:', commitmentError);
+        throw commitmentError;
+      }
+
+      console.log('Successfully inserted commitment:', insertedCommitment);
 
       // Send verification message if SMS is selected
       if (verificationMethod === 'sms') {
-        await sendVerification(
-          contactDetails.phone,
-          contactDetails.countryCode,
-          'sms'
-        );
+        try {
+          await sendVerification(
+            contactDetails.phone,
+            contactDetails.countryCode,
+            'sms'
+          );
+        } catch (smsError) {
+          console.error('SMS verification error:', smsError);
+          // Continue with the flow even if SMS fails
+          toast({
+            title: "SMS Notification Failed",
+            description: "Your commitment was created but we couldn't send the SMS verification. You can try again later.",
+            variant: "destructive",
+          });
+        }
       }
 
       // Send confirmation email
-      await supabase.functions.invoke('send-confirmation', {
-        body: {
-          to: contactDetails.email,
-          firstName: contactDetails.firstName,
-          commitmentName: commitmentData.name,
-          frequency: commitmentData.frequency,
-          endDate: format(new Date(commitmentData.end_date), 'PPP'),
-          stakeAmount: stakeData.amount,
-          charity: stakeData.charity,
-        },
-      });
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-confirmation', {
+          body: {
+            to: contactDetails.email,
+            firstName: contactDetails.firstName,
+            commitmentName: commitmentData.name,
+            frequency: commitmentData.frequency,
+            endDate: format(new Date(commitmentData.end_date), 'PPP'),
+            stakeAmount: stakeData.amount,
+            charity: stakeData.charity,
+          },
+        });
+
+        if (emailError) {
+          console.error('Email confirmation error:', emailError);
+          // Continue with the flow even if email fails
+          toast({
+            title: "Email Notification Failed",
+            description: "Your commitment was created but we couldn't send the confirmation email. Please check your commitment details in your dashboard.",
+            variant: "destructive",
+          });
+        }
+      } catch (emailError) {
+        console.error('Email sending error:', emailError);
+      }
 
       toast({
         title: "Success!",
@@ -75,7 +116,7 @@ export const useCommitmentSubmission = () => {
       console.error('Error saving commitment:', error);
       toast({
         title: "Error",
-        description: "Failed to save your commitment",
+        description: error.message || "Failed to save your commitment",
         variant: "destructive",
       });
     } finally {
