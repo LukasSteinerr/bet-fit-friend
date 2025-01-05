@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Index } from "@/pages/Index";
+import Index from "@/pages/Index";
 import { CommitmentSetup } from "@/components/CommitmentSetup";
 import { StakeSetup } from "@/components/StakeSetup";
 import { Finish } from "@/components/Finish";
