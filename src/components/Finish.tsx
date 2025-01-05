@@ -32,7 +32,7 @@ export const Finish = () => {
   const stakeData = location.state?.stakeData;
 
   // If we don't have the required data, show the error section
-  if (!commitmentData || !stakeData) {
+  if (!location.state || !commitmentData || !stakeData) {
     return <ErrorSection />;
   }
 
