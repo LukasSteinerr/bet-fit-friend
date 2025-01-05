@@ -4,24 +4,28 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
 
 interface VerificationSectionProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  verificationMethod: 'sms' | 'whatsapp' | null;
+  onVerificationMethodChange: (method: 'sms' | 'whatsapp') => void;
 }
 
-export const VerificationSection = ({ open, onOpenChange }: VerificationSectionProps) => {
-  const [selectedMethod, setSelectedMethod] = useState<'sms' | 'whatsapp' | null>(null);
-  
+export const VerificationSection = ({ 
+  open, 
+  onOpenChange,
+  verificationMethod,
+  onVerificationMethodChange,
+}: VerificationSectionProps) => {
   // Section is complete if a verification method is selected
-  const isComplete = selectedMethod !== null;
+  const isComplete = verificationMethod !== null;
 
   return (
     <>
       <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${isComplete || open ? 'bg-primary' : 'bg-muted'}`} />
+          <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Verification</span>
         </div>
         <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -36,8 +40,8 @@ export const VerificationSection = ({ open, onOpenChange }: VerificationSectionP
         <div className="grid gap-4 sm:grid-cols-2">
           <Button 
             variant="outline" 
-            className={`h-auto justify-start p-4 ${selectedMethod === 'sms' ? 'border-primary' : ''}`}
-            onClick={() => setSelectedMethod('sms')}
+            className={`h-auto justify-start p-4 ${verificationMethod === 'sms' ? 'border-primary' : ''}`}
+            onClick={() => onVerificationMethodChange('sms')}
           >
             <div className="text-left">
               <div className="font-medium">Text Message (SMS)</div>
@@ -45,8 +49,8 @@ export const VerificationSection = ({ open, onOpenChange }: VerificationSectionP
           </Button>
           <Button 
             variant="outline" 
-            className={`h-auto justify-start p-4 ${selectedMethod === 'whatsapp' ? 'border-primary' : ''}`}
-            onClick={() => setSelectedMethod('whatsapp')}
+            className={`h-auto justify-start p-4 ${verificationMethod === 'whatsapp' ? 'border-primary' : ''}`}
+            onClick={() => onVerificationMethodChange('whatsapp')}
           >
             <div className="text-left">
               <div className="font-medium">WhatsApp</div>

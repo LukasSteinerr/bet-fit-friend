@@ -18,20 +18,34 @@ import { useState } from "react";
 interface PaymentSectionProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  paymentVerified: boolean;
+  onPaymentVerification: (methodId: string) => void;
 }
 
-export const PaymentSection = ({ open, onOpenChange }: PaymentSectionProps) => {
+export const PaymentSection = ({ 
+  open, 
+  onOpenChange,
+  paymentVerified,
+  onPaymentVerification,
+}: PaymentSectionProps) => {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const [paymentVerified, setPaymentVerified] = useState(false);
 
   // Section is complete if payment has been verified
   const isComplete = paymentVerified;
+
+  const handleSavePayment = () => {
+    // In a real implementation, this would validate and process the card details
+    // For now, we'll simulate saving a payment method
+    const mockPaymentMethodId = `pm_${Math.random().toString(36).substr(2, 9)}`;
+    onPaymentVerification(mockPaymentMethodId);
+    setPaymentDialogOpen(false);
+  };
 
   return (
     <>
       <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${isComplete || open ? 'bg-primary' : 'bg-muted'}`} />
+          <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Payment Method</span>
         </div>
         <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -54,16 +68,10 @@ export const PaymentSection = ({ open, onOpenChange }: PaymentSectionProps) => {
             </p>
           </div>
 
-          <Dialog open={paymentDialogOpen} onOpenChange={(open) => {
-            setPaymentDialogOpen(open);
-            if (!open && !paymentVerified) {
-              // This would be where you'd verify the payment details were saved
-              setPaymentVerified(true);
-            }
-          }}>
+          <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="w-full" size="lg">
-                Verify payment method
+                {paymentVerified ? 'Update payment method' : 'Verify payment method'}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
@@ -138,7 +146,11 @@ export const PaymentSection = ({ open, onOpenChange }: PaymentSectionProps) => {
                     By providing your card information, you allow Commitly to charge your card for future payments in accordance with their terms.
                   </p>
 
-                  <Button className="w-full bg-primary" size="lg">
+                  <Button 
+                    className="w-full bg-primary" 
+                    size="lg"
+                    onClick={handleSavePayment}
+                  >
                     Save
                   </Button>
                 </div>

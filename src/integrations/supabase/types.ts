@@ -19,6 +19,8 @@ export type Database = {
           frequency: string
           id: string
           name: string
+          payment_method_id: string | null
+          payment_verified: boolean | null
           stake_amount: number | null
           updated_at: string | null
           user_id: string | null
@@ -33,6 +35,8 @@ export type Database = {
           frequency: string
           id?: string
           name: string
+          payment_method_id?: string | null
+          payment_verified?: boolean | null
           stake_amount?: number | null
           updated_at?: string | null
           user_id?: string | null
@@ -47,6 +51,8 @@ export type Database = {
           frequency?: string
           id?: string
           name?: string
+          payment_method_id?: string | null
+          payment_verified?: boolean | null
           stake_amount?: number | null
           updated_at?: string | null
           user_id?: string | null

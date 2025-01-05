@@ -54,7 +54,7 @@ export const ContactSection = ({
     <>
       <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${isComplete || open ? 'bg-primary' : 'bg-muted'}`} />
+          <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Contact</span>
         </div>
         <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
