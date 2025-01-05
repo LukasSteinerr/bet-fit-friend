@@ -43,7 +43,9 @@ export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
   const handleStepClick = (step: ProgressStep) => {
     // Only allow navigation to completed steps or the current step
     if (step.completed || step.active) {
-      navigate(step.route);
+      navigate(step.route, { 
+        state: location.state // Preserve the existing state when navigating
+      });
     }
   };
 
