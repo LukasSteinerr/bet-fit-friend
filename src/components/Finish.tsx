@@ -12,6 +12,37 @@ import { ErrorSection } from "./finish/ErrorSection";
 import { ConfirmDialog } from "./finish/ConfirmDialog";
 import { format } from "date-fns";
 
+const sendConfirmationEmail = async (emailData: {
+  to: string;
+  firstName: string;
+  commitmentName: string;
+  frequency: string;
+  endDate: string;
+  stakeAmount: number;
+  charity: string;
+}) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-confirmation`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify(emailData),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to send confirmation email");
+    }
+  } catch (error) {
+    console.error("Error sending confirmation email:", error);
+    // We don't want to block the commitment creation if email fails
+  }
+};
+
 export const Finish = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,37 +93,6 @@ export const Finish = () => {
     setPaymentVerified(true);
   };
 
-  const sendConfirmationEmail = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-confirmation`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            to: contactDetails.email,
-            firstName: contactDetails.firstName,
-            commitmentName: commitmentData.name,
-            frequency: commitmentData.frequency,
-            endDate: format(new Date(commitmentData.end_date), 'PPP'),
-            stakeAmount: stakeData.amount,
-            charity: stakeData.charity,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to send confirmation email");
-      }
-    } catch (error) {
-      console.error("Error sending confirmation email:", error);
-      // We don't want to block the commitment creation if email fails
-    }
-  };
-
   const handleConfirm = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -120,7 +120,15 @@ export const Finish = () => {
       if (error) throw error;
 
       // Send confirmation email
-      await sendConfirmationEmail();
+      await sendConfirmationEmail({
+        to: contactDetails.email,
+        firstName: contactDetails.firstName,
+        commitmentName: commitmentData.name,
+        frequency: commitmentData.frequency,
+        endDate: format(new Date(commitmentData.end_date), 'PPP'),
+        stakeAmount: stakeData.amount,
+        charity: stakeData.charity,
+      });
 
       toast({
         title: "Success!",
