@@ -111,43 +111,45 @@ export const StakeSetup = () => {
           {/* Amount Selection */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Select Amount</h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <Button 
-                variant="outline" 
-                className="w-full justify-start" 
-                onClick={() => handleAmountSelect("small")}
+                variant={selectedAmount === "25" ? "default" : "outline"}
+                className="h-24 text-lg font-semibold"
+                onClick={() => handleAmountSelect("25")}
               >
-                Small Amount
+                $25
               </Button>
               <Button 
-                variant="outline" 
-                className="w-full justify-start" 
-                onClick={() => handleAmountSelect("medium")}
+                variant={selectedAmount === "50" ? "default" : "outline"}
+                className="h-24 text-lg font-semibold"
+                onClick={() => handleAmountSelect("50")}
               >
-                Medium Amount
+                $50
               </Button>
               <Button 
-                variant="outline" 
-                className="w-full justify-start" 
-                onClick={() => handleAmountSelect("large")}
+                variant={selectedAmount === "100" ? "default" : "outline"}
+                className="h-24 text-lg font-semibold"
+                onClick={() => handleAmountSelect("100")}
               >
-                Large Amount
+                $100
               </Button>
               <Button 
-                variant="outline" 
-                className="w-full justify-start" 
+                variant={selectedAmount === "custom" ? "default" : "outline"}
+                className="h-24 text-lg font-semibold"
                 onClick={() => handleAmountSelect("custom")}
               >
                 Custom Amount
               </Button>
               {selectedAmount === "custom" && (
-                <input
-                  type="text"
-                  placeholder="Enter custom amount"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2"
-                />
+                <div className="col-span-2">
+                  <input
+                    type="text"
+                    placeholder="Enter custom amount"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2"
+                  />
+                </div>
               )}
             </div>
           </Card>
