@@ -66,7 +66,9 @@ export const useCommitmentSubmission = () => {
           await sendVerification(
             contactDetails.phone,
             contactDetails.countryCode,
-            'sms'
+            'sms',
+            commitmentData.name,
+            commitmentData.frequency
           );
         } catch (smsError: any) {
           console.error('SMS verification error:', smsError);
@@ -115,7 +117,7 @@ export const useCommitmentSubmission = () => {
         console.error('Email sending error:', emailError);
       }
 
-      // Navigate to success page instead of home
+      // Navigate to success page
       navigate('/success');
       
     } catch (error: any) {

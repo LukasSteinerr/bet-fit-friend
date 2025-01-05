@@ -3,16 +3,18 @@ import { supabase } from "@/integrations/supabase/client";
 export const sendVerification = async (
   phoneNumber: string,
   countryCode: string,
-  method: 'sms' | 'whatsapp'
+  method: 'sms' | 'whatsapp',
+  commitmentName?: string,
+  frequency?: string
 ) => {
   if (method === 'sms') {
     try {
-      const message = "Thank you for creating your commitment! Reply YES to this message to verify your phone number.";
-      
-      const response = await supabase.functions.invoke('send-sms', {
+      const response = await supabase.functions.invoke('send-verification', {
         body: {
-          to: `${countryCode}${phoneNumber}`,
-          message,
+          to: phoneNumber,
+          countryCode,
+          commitmentName: commitmentName || 'your commitment',
+          frequency: frequency || 'today',
         },
       });
 
