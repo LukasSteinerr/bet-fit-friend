@@ -115,12 +115,9 @@ export const useCommitmentSubmission = () => {
         console.error('Email sending error:', emailError);
       }
 
-      toast({
-        title: "Success!",
-        description: "Your commitment has been created",
-      });
+      // Navigate to success page instead of home
+      navigate('/success');
       
-      navigate('/');
     } catch (error: any) {
       console.error('Error saving commitment:', error);
       toast({
