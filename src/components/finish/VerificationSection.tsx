@@ -4,6 +4,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface VerificationSectionProps {
   open: boolean;
@@ -11,6 +12,8 @@ interface VerificationSectionProps {
 }
 
 export const VerificationSection = ({ open, onOpenChange }: VerificationSectionProps) => {
+  const [selectedMethod, setSelectedMethod] = useState<'sms' | 'whatsapp' | null>(null);
+
   return (
     <>
       <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
@@ -28,13 +31,20 @@ export const VerificationSection = ({ open, onOpenChange }: VerificationSectionP
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Button variant="outline" className="h-auto justify-start p-4" disabled>
+          <Button 
+            variant="outline" 
+            className={`h-auto justify-start p-4 ${selectedMethod === 'sms' ? 'border-primary' : ''}`}
+            onClick={() => setSelectedMethod('sms')}
+          >
             <div className="text-left">
               <div className="font-medium">Text Message (SMS)</div>
-              <div className="text-sm text-muted-foreground">Available soon</div>
             </div>
           </Button>
-          <Button variant="outline" className="h-auto justify-start p-4">
+          <Button 
+            variant="outline" 
+            className={`h-auto justify-start p-4 ${selectedMethod === 'whatsapp' ? 'border-primary' : ''}`}
+            onClick={() => setSelectedMethod('whatsapp')}
+          >
             <div className="text-left">
               <div className="font-medium">WhatsApp</div>
             </div>
