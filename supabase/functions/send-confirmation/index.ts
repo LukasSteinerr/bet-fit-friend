@@ -8,7 +8,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface CommitmentEmailData {
+interface EmailData {
   to: string;
   firstName: string;
   commitmentName: string;
@@ -25,10 +25,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, firstName, commitmentName, frequency, endDate, stakeAmount, charity }: CommitmentEmailData = await req.json();
+    const { to, firstName, commitmentName, frequency, endDate, stakeAmount, charity }: EmailData = await req.json();
+
+    console.log("Sending email to:", to);
+    console.log("Email data:", { firstName, commitmentName, frequency, endDate, stakeAmount, charity });
 
     const emailHtml = `
-      <h1>Your Commitment is Confirmed!</h1>
+      <h1>Your Commitment is Confirmed! 🎉</h1>
       <p>Hi ${firstName},</p>
       <p>Your commitment has been successfully created. Here are the details:</p>
       <ul>
@@ -55,17 +58,19 @@ const handler = async (req: Request): Promise<Response> => {
       }),
     });
 
+    const data = await res.json();
+    console.log("Resend API response:", data);
+
     if (!res.ok) {
-      const error = await res.text();
-      throw new Error(error);
+      throw new Error(await res.text());
     }
 
-    const data = await res.json();
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: any) {
+    console.error("Error sending email:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
