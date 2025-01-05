@@ -6,11 +6,8 @@ import { ProgressSteps } from "./ProgressSteps";
 import { supabase } from "@/integrations/supabase/client";
 import { CommitmentPreview } from "./commitment/CommitmentPreview";
 import { CommitmentForm } from "./commitment/CommitmentForm";
-import { useSession } from "@supabase/auth-helpers-react";
-import { Navigate } from "react-router-dom";
 
 export const CommitmentSetup = () => {
-  const session = useSession();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [commitmentText, setCommitmentText] = useState("");
@@ -18,11 +15,6 @@ export const CommitmentSetup = () => {
   const [date, setDate] = useState<Date>();
   const [difficulty, setDifficulty] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Redirect to login if not authenticated
-  if (!session) {
-    return <Navigate to="/login" replace />;
-  }
 
   const showDifficulty = frequency === "Daily" || frequency === "Weekly";
 
@@ -59,7 +51,6 @@ export const CommitmentSetup = () => {
         .from('commitments')
         .insert([
           {
-            user_id: session.user.id,
             name: commitmentText,
             frequency,
             end_date: date?.toISOString(),
