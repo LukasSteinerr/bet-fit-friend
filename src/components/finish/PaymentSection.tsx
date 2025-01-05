@@ -14,6 +14,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { supabase } from "@/integrations/supabase/client";
+
+// Initialize Stripe
+const stripePromise = loadStripe('pk_test_51OxLwqFXPWRhLGD8VjmzYFEFtXXwANqHDp8lP8F4WzFBrB3jbwkxhvnJvyqEWbtZEcmXHAXoJbLvhGhQZPQWHqSw00vLzGWwEf');
 
 interface PaymentSectionProps {
   open: boolean;
@@ -22,6 +28,65 @@ interface PaymentSectionProps {
   onPaymentVerification: (methodId: string) => void;
 }
 
+const PaymentForm = ({ onSuccess }: { onSuccess: (methodId: string) => void }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
+    setProcessing(true);
+    setError(null);
+
+    try {
+      const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: elements.getElement(PaymentElement)!,
+      });
+
+      if (stripeError) {
+        throw new Error(stripeError.message);
+      }
+
+      if (!paymentMethod) {
+        throw new Error('Failed to create payment method');
+      }
+
+      // Call our Edge Function to set up the payment method for future use
+      const { data, error } = await supabase.functions.invoke('setup-payment', {
+        body: { paymentMethodId: paymentMethod.id }
+      });
+
+      if (error) throw error;
+
+      onSuccess(paymentMethod.id);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <PaymentElement />
+      {error && (
+        <div className="text-sm text-red-500">{error}</div>
+      )}
+      <Button 
+        type="submit" 
+        className="w-full" 
+        disabled={!stripe || processing}
+      >
+        {processing ? 'Processing...' : 'Save Payment Method'}
+      </Button>
+    </form>
+  );
+};
+
 export const PaymentSection = ({ 
   open, 
   onOpenChange,
@@ -29,15 +94,10 @@ export const PaymentSection = ({
   onPaymentVerification,
 }: PaymentSectionProps) => {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-
-  // Section is complete if payment has been verified
   const isComplete = paymentVerified;
 
-  const handleSavePayment = () => {
-    // In a real implementation, this would validate and process the card details
-    // For now, we'll simulate saving a payment method
-    const mockPaymentMethodId = `pm_${Math.random().toString(36).substr(2, 9)}`;
-    onPaymentVerification(mockPaymentMethodId);
+  const handlePaymentSuccess = (methodId: string) => {
+    onPaymentVerification(methodId);
     setPaymentDialogOpen(false);
   };
 
@@ -53,116 +113,37 @@ export const PaymentSection = ({
       <CollapsibleContent className="p-4 pt-0">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h3 className="font-medium">Verify payment details</h3>
+            <h3 className="font-medium">Add payment details</h3>
             <p className="text-sm text-muted-foreground">
-              This won't charge your card.
-            </p>
-          </div>
-          
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Your card will only get charged, if you fail your commitment.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              After that, your payment details will be permanently deleted.
+              Your card will only be charged if you fail your commitment.
             </p>
           </div>
 
           <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="w-full" size="lg">
-                {paymentVerified ? 'Update payment method' : 'Verify payment method'}
+                {paymentVerified ? 'Update payment method' : 'Add payment method'}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                    <CreditCard className="h-4 w-4 text-primary" />
-                  </div>
-                  Card
+                <DialogTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Add Payment Method
                 </DialogTitle>
               </DialogHeader>
-              <div className="mt-4 space-y-6">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full bg-green-500" />
-                    <span className="font-medium">Secure, 1-click checkout with Link</span>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="cardNumber" className="text-sm text-muted-foreground">
-                      Card number
-                    </label>
-                    <Input 
-                      id="cardNumber"
-                      placeholder="1234 1234 1234 1234"
-                      className="mt-1.5"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="expiry" className="text-sm text-muted-foreground">
-                        Expiration date
-                      </label>
-                      <Input 
-                        id="expiry"
-                        placeholder="MM / YY"
-                        className="mt-1.5"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="cvc" className="text-sm text-muted-foreground">
-                        Security code
-                      </label>
-                      <Input 
-                        id="cvc"
-                        placeholder="CVC"
-                        className="mt-1.5"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="country" className="text-sm text-muted-foreground">
-                      Country
-                    </label>
-                    <Select>
-                      <SelectTrigger className="mt-1.5 w-full">
-                        <SelectValue placeholder="Select country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="sweden">Sweden</SelectItem>
-                        <SelectItem value="norway">Norway</SelectItem>
-                        <SelectItem value="denmark">Denmark</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground">
-                    By providing your card information, you allow Commitly to charge your card for future payments in accordance with their terms.
-                  </p>
-
-                  <Button 
-                    className="w-full bg-primary" 
-                    size="lg"
-                    onClick={handleSavePayment}
-                  >
-                    Save
-                  </Button>
-                </div>
-              </div>
+              <Elements stripe={stripePromise}>
+                <PaymentForm onSuccess={handlePaymentSuccess} />
+              </Elements>
             </DialogContent>
           </Dialog>
 
-          <div className="flex items-center gap-2 text-sm text-primary">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Info className="h-4 w-4" />
-            <button className="hover:underline">
-              More details how payment works
-            </button>
+            <p>
+              Your card details are securely stored by Stripe and will only be charged 
+              if you fail to meet your commitment.
+            </p>
           </div>
         </div>
       </CollapsibleContent>
