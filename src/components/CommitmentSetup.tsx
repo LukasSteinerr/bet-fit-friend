@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { differenceInDays, differenceInWeeks } from "date-fns";
 import { ProgressSteps } from "./ProgressSteps";
-import { supabase } from "@/integrations/supabase/client";
 import { CommitmentPreview } from "./commitment/CommitmentPreview";
 import { CommitmentForm } from "./commitment/CommitmentForm";
 
@@ -14,7 +13,6 @@ export const CommitmentSetup = () => {
   const [frequency, setFrequency] = useState("");
   const [date, setDate] = useState<Date>();
   const [difficulty, setDifficulty] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const showDifficulty = frequency === "Daily" || frequency === "Weekly";
 
@@ -40,48 +38,20 @@ export const CommitmentSetup = () => {
     return true;
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!isFormValid()) return;
     
-    setIsSubmitting(true);
-    try {
-      const requiredVerifications = calculateRequiredVerifications();
-      
-      const { data, error } = await supabase
-        .from('commitments')
-        .insert([
-          {
-            name: commitmentText,
-            frequency,
-            end_date: date?.toISOString(),
-            difficulty: showDifficulty ? difficulty : null,
-            required_verifications: requiredVerifications,
-            status: 'active'
-          }
-        ])
-        .select()
-        .single();
+    const commitmentData = {
+      name: commitmentText,
+      frequency,
+      end_date: date?.toISOString(),
+      difficulty: showDifficulty ? difficulty : null,
+      required_verifications: calculateRequiredVerifications(),
+    };
 
-      if (error) throw error;
-
-      toast({
-        title: "Commitment created!",
-        description: "Let's set up your stake amount.",
-      });
-
-      navigate("/add-stake", { 
-        state: { commitmentId: data.id }
-      });
-    } catch (error: any) {
-      console.error('Error creating commitment:', error);
-      toast({
-        title: "Error creating commitment",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    navigate("/add-stake", { 
+      state: { commitmentData }
+    });
   };
 
   return (
@@ -108,7 +78,7 @@ export const CommitmentSetup = () => {
             difficulty={difficulty}
             setDifficulty={setDifficulty}
             showDifficulty={showDifficulty}
-            isSubmitting={isSubmitting}
+            isSubmitting={false}
             onSubmit={handleNext}
             isFormValid={isFormValid()}
           />

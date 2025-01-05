@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProgressSteps } from "./ProgressSteps";
 
 export const StakeSetup = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedAmount, setSelectedAmount] = useState<string>("");
   const [customAmount, setCustomAmount] = useState<string>("");
   const [selectedCharity, setSelectedCharity] = useState<string>("");
@@ -19,7 +20,16 @@ export const StakeSetup = () => {
   };
 
   const handleNext = () => {
-    navigate("/finish");
+    const amount = selectedAmount === "custom" ? customAmount : selectedAmount;
+    navigate("/finish", {
+      state: {
+        commitmentData: location.state?.commitmentData,
+        stakeData: {
+          amount: Number(amount),
+          charity: selectedCharity
+        }
+      }
+    });
   };
 
   const isFormValid = () => {
