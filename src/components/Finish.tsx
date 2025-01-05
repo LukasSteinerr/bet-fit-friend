@@ -1,15 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { Collapsible } from "@/components/ui/collapsible";
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Collapsible } from "@/components/ui/collapsible";
 import { VerificationSection } from "./finish/VerificationSection";
 import { ContactSection } from "./finish/ContactSection";
 import { PaymentSection } from "./finish/PaymentSection";
-import { ProgressSteps } from "./ProgressSteps";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { FinishLayout } from "./finish/FinishLayout";
+import { AuthSection } from "./finish/AuthSection";
+import { ErrorSection } from "./finish/ErrorSection";
 
 export const Finish = () => {
   const navigate = useNavigate();
@@ -29,7 +28,6 @@ export const Finish = () => {
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
   const [showAuth, setShowAuth] = useState(false);
 
-  // Get commitment and stake data from location state
   const commitmentData = location.state?.commitmentData;
   const stakeData = location.state?.stakeData;
 
@@ -70,27 +68,19 @@ export const Finish = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      // Combine all data into one commitment object
       const commitmentRecord = {
-        // Commitment details from step 1
         name: commitmentData.name,
         frequency: commitmentData.frequency,
         end_date: commitmentData.end_date,
         difficulty: commitmentData.difficulty,
         required_verifications: commitmentData.required_verifications,
         status: 'active',
-        
-        // Stake details from step 2
         stake_amount: stakeData.amount,
         charity: stakeData.charity,
-        
-        // Details from finish step
         verification_method: verificationMethod,
         contact_details: contactDetails,
         payment_verified: paymentVerified,
         payment_method_id: paymentMethodId,
-        
-        // Add user_id if authenticated
         ...(session?.user && { user_id: session.user.id })
       };
 
@@ -123,113 +113,54 @@ export const Finish = () => {
     paymentVerified;
 
   if (showAuth) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
-        <div className="container max-w-md">
-          <h2 className="mb-8 text-center text-2xl font-semibold tracking-tight">
-            Create an account to complete your commitment
-          </h2>
-          <Auth
-            supabaseClient={supabase}
-            appearance={{ theme: ThemeSupa }}
-            providers={["google"]}
-            redirectTo={`${window.location.origin}/finish`}
-            onlyThirdPartyProviders
-          />
-        </div>
-      </div>
-    );
+    return <AuthSection />;
   }
 
-  // Show error if we don't have the required data from previous steps
   if (!commitmentData || !stakeData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
-        <div className="container max-w-md text-center">
-          <h2 className="text-2xl font-semibold tracking-tight text-red-600">
-            Missing required information
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Please start from the beginning to create your commitment.
-          </p>
-          <Button 
-            className="mt-6"
-            onClick={() => navigate('/')}
-          >
-            Start Over
-          </Button>
-        </div>
-      </div>
-    );
+    return <ErrorSection />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
-      <div className="container max-w-3xl">
-        <ProgressSteps currentStep={3} />
-        
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-gray-900">Add details</h2>
-            <p className="text-sm text-muted-foreground">
-              Choose how you want to verify your actions and add your contact info.
-            </p>
-          </div>
+    <FinishLayout isComplete={isComplete} onSubmit={handleSubmit}>
+      <Collapsible
+        open={verificationOpen}
+        onOpenChange={setVerificationOpen}
+        className="rounded-lg border bg-card text-card-foreground"
+      >
+        <VerificationSection 
+          open={verificationOpen}
+          onOpenChange={setVerificationOpen}
+          verificationMethod={verificationMethod}
+          onVerificationMethodChange={handleVerificationMethodChange}
+        />
+      </Collapsible>
 
-          <div className="space-y-4">
-            <Collapsible
-              open={verificationOpen}
-              onOpenChange={setVerificationOpen}
-              className="rounded-lg border bg-card text-card-foreground"
-            >
-              <VerificationSection 
-                open={verificationOpen}
-                onOpenChange={setVerificationOpen}
-                verificationMethod={verificationMethod}
-                onVerificationMethodChange={handleVerificationMethodChange}
-              />
-            </Collapsible>
+      <Collapsible
+        open={contactOpen}
+        onOpenChange={setContactOpen}
+        className="rounded-lg border bg-card text-card-foreground"
+      >
+        <ContactSection 
+          open={contactOpen}
+          onOpenChange={setContactOpen}
+          contactDetails={contactDetails}
+          onContactChange={handleContactChange}
+          onCountryCodeChange={handleCountryCodeChange}
+        />
+      </Collapsible>
 
-            <Collapsible
-              open={contactOpen}
-              onOpenChange={setContactOpen}
-              className="rounded-lg border bg-card text-card-foreground"
-            >
-              <ContactSection 
-                open={contactOpen}
-                onOpenChange={setContactOpen}
-                contactDetails={contactDetails}
-                onContactChange={handleContactChange}
-                onCountryCodeChange={handleCountryCodeChange}
-              />
-            </Collapsible>
-
-            <Collapsible
-              open={paymentOpen}
-              onOpenChange={setPaymentOpen}
-              className="rounded-lg border bg-card text-card-foreground"
-            >
-              <PaymentSection 
-                open={paymentOpen}
-                onOpenChange={setPaymentOpen}
-                paymentVerified={paymentVerified}
-                onPaymentVerification={handlePaymentVerification}
-              />
-            </Collapsible>
-          </div>
-        </div>
-
-        <div className="mt-8 flex justify-end">
-          <Button 
-            size="lg" 
-            className="px-8"
-            onClick={handleSubmit}
-            disabled={!isComplete}
-          >
-            Review & confirm
-          </Button>
-        </div>
-      </div>
-    </div>
+      <Collapsible
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        className="rounded-lg border bg-card text-card-foreground"
+      >
+        <PaymentSection 
+          open={paymentOpen}
+          onOpenChange={setPaymentOpen}
+          paymentVerified={paymentVerified}
+          onPaymentVerification={handlePaymentVerification}
+        />
+      </Collapsible>
+    </FinishLayout>
   );
 };
