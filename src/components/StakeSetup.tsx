@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ProgressSteps } from "./ProgressSteps";
 
 export const StakeSetup = () => {
   const navigate = useNavigate();
@@ -30,28 +31,8 @@ export const StakeSetup = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
       <div className="container max-w-3xl">
-        {/* Progress Steps */}
-        <div className="mb-12 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="text-sm">✓</span>
-            </div>
-            <span className="text-sm text-primary font-medium">Create commitment</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="text-sm">2</span>
-            </div>
-            <span className="text-sm font-medium text-primary">Add stake</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-muted bg-background">
-              <span className="text-sm text-muted-foreground">3</span>
-            </div>
-            <span className="text-sm text-muted-foreground">Finish</span>
-          </div>
-        </div>
-
+        <ProgressSteps currentStep={2} />
+        
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">Add stake</h1>

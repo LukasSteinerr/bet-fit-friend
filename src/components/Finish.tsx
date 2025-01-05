@@ -4,6 +4,7 @@ import { useState } from "react";
 import { VerificationSection } from "./finish/VerificationSection";
 import { ContactSection } from "./finish/ContactSection";
 import { PaymentSection } from "./finish/PaymentSection";
+import { ProgressSteps } from "./ProgressSteps";
 
 export const Finish = () => {
   const [verificationOpen, setVerificationOpen] = useState(true);
@@ -34,28 +35,8 @@ export const Finish = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
       <div className="container max-w-3xl">
-        {/* Progress Steps */}
-        <div className="mb-12 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="text-sm">✓</span>
-            </div>
-            <span className="text-sm font-medium text-primary">Create commitment</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="text-sm">✓</span>
-            </div>
-            <span className="text-sm font-medium text-primary">Add stake</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="text-sm">3</span>
-            </div>
-            <span className="text-sm font-medium text-primary">Finish</span>
-          </div>
-        </div>
-
+        <ProgressSteps currentStep={3} />
+        
         <div className="space-y-6">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight text-gray-900">Add details</h2>

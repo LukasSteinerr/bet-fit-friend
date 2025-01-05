@@ -9,7 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      commitments: {
+        Row: {
+          charity: string | null
+          contact_details: Json | null
+          created_at: string | null
+          difficulty: string | null
+          end_date: string
+          frequency: string
+          id: string
+          name: string
+          stake_amount: number | null
+          updated_at: string | null
+          user_id: string | null
+          verification_method: string | null
+        }
+        Insert: {
+          charity?: string | null
+          contact_details?: Json | null
+          created_at?: string | null
+          difficulty?: string | null
+          end_date: string
+          frequency: string
+          id?: string
+          name: string
+          stake_amount?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_method?: string | null
+        }
+        Update: {
+          charity?: string | null
+          contact_details?: Json | null
+          created_at?: string | null
+          difficulty?: string | null
+          end_date?: string
+          frequency?: string
+          id?: string
+          name?: string
+          stake_amount?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_method?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

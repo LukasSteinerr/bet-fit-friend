@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Target, Calendar, Clock, Check } from "lucide-react";
+import { ChevronRight, Check } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ProgressSteps } from "./ProgressSteps";
 
 export const CommitmentSetup = () => {
   const navigate = useNavigate();
@@ -41,27 +42,7 @@ export const CommitmentSetup = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
       <div className="container max-w-3xl">
-        {/* Progress Steps */}
-        <div className="mb-12 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="text-sm">1</span>
-            </div>
-            <span className="text-sm font-medium text-primary">Create commitment</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-muted bg-background">
-              <span className="text-sm text-muted-foreground">2</span>
-            </div>
-            <span className="text-sm text-muted-foreground">Add stake</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-muted bg-background">
-              <span className="text-sm text-muted-foreground">3</span>
-            </div>
-            <span className="text-sm text-muted-foreground">Finish</span>
-          </div>
-        </div>
+        <ProgressSteps currentStep={1} />
 
         <div className="grid gap-8 md:grid-cols-2">
           {/* Preview Card */}
