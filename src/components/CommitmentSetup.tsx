@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Target, Calendar, Clock } from "lucide-react";
+import { ChevronRight, Target, Calendar, Clock, Check } from "lucide-react";
 import { useState } from "react";
 import {
   Select,
@@ -17,122 +17,111 @@ export const CommitmentSetup = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
-      <div className="container max-w-3xl animate-fade-in">
-        <div className="mb-8 space-y-2">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              1
+      <div className="container max-w-3xl">
+        {/* Progress Steps */}
+        <div className="mb-12 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <span className="text-sm">1</span>
             </div>
-            <span className="font-medium text-primary">Create commitment</span>
-            <ChevronRight className="h-4 w-4" />
-            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-muted bg-background">
-              2
+            <span className="text-sm font-medium text-primary">Create commitment</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-muted bg-background">
+              <span className="text-sm text-muted-foreground">2</span>
             </div>
-            <span className="text-muted-foreground">Add stake</span>
-            <ChevronRight className="h-4 w-4" />
-            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-muted bg-background">
-              3
+            <span className="text-sm text-muted-foreground">Add stake</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-muted bg-background">
+              <span className="text-sm text-muted-foreground">3</span>
             </div>
-            <span className="text-muted-foreground">Finish</span>
+            <span className="text-sm text-muted-foreground">Finish</span>
           </div>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
-          <Card className="relative overflow-hidden border-none bg-gradient-to-br from-secondary/50 to-warning/30 p-8 transition-transform hover:scale-[1.02] animate-float">
-            <div className="relative z-10 flex h-full flex-col justify-center">
-              <h2 className="text-3xl font-semibold tracking-tight">
+          {/* Preview Card */}
+          <Card className="relative overflow-hidden border-none bg-gradient-to-br from-secondary/50 to-warning/30 p-8">
+            <div className="relative z-10">
+              <h2 className="text-4xl font-semibold tracking-tight text-gray-900">
                 {commitmentText ? (
                   <>
-                    I commit to
-                    <br />
-                    {commitmentText}
+                    I commit to {commitmentText}.
                     {frequency && (
-                      <>
-                        <br />
-                        <span className="text-xl text-muted-foreground">
-                          {frequency}
-                        </span>
-                      </>
+                      <div className="mt-2 text-xl text-muted-foreground">
+                        {frequency}
+                      </div>
                     )}
                   </>
                 ) : (
-                  <>
-                    You are one
-                    <br />
-                    commitment away
-                  </>
+                  "Create your commitment"
                 )}
               </h2>
             </div>
           </Card>
 
-          <Card className="border-none p-6 shadow-lg transition-transform hover:scale-[1.01]">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight">
-                  Create commitment
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Let us know what you want to commit to.
-                </p>
-              </div>
+          {/* Form Card */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-gray-900">Create commitment</h2>
+              <p className="text-sm text-muted-foreground">
+                Let us know what you want to commit to.
+              </p>
+            </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="commitment-name"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Name your commitment
-                  </label>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none">
+                  Name
+                </label>
+                <div className="relative">
                   <Input
-                    id="commitment-name"
-                    placeholder="E.g. 'Going to the Gym'"
-                    className="text-base md:text-sm"
+                    placeholder="E.g. 'Get a job'"
                     value={commitmentText}
                     onChange={(e) => setCommitmentText(e.target.value)}
+                    className="pr-10"
                   />
+                  {commitmentText && (
+                    <Check className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
+                  )}
                 </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="frequency"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Frequency
-                  </label>
-                  <Select value={frequency} onValueChange={setFrequency}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select frequency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="one-time">One time</SelectItem>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-between group hover:bg-secondary/50"
-                  size="lg"
-                >
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <span>Duration</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
               </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none">
+                  Frequency
+                </label>
+                <Select value={frequency} onValueChange={setFrequency}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose your frequency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="One Time">One Time</SelectItem>
+                    <SelectItem value="Daily">Daily</SelectItem>
+                    <SelectItem value="Weekly">Weekly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full justify-between"
+                size="lg"
+              >
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span>Duration</span>
+                </div>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
-          </Card>
+          </div>
         </div>
 
         <div className="mt-8 flex justify-end">
-          <Button size="lg" className="group">
+          <Button size="lg" className="px-8">
             Next
-            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </div>
       </div>
