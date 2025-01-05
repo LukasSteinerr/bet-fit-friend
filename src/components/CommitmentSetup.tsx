@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Check } from "lucide-react";
+import { ChevronRight, Check, Clock } from "lucide-react"; // Added Clock import here
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
