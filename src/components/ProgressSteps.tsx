@@ -57,12 +57,12 @@ export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
       {/* Progress line container */}
       <div className="relative flex items-center justify-between">
         {/* Background line */}
-        <div className="absolute left-0 top-4 h-0.5 w-full -translate-y-1/2 bg-muted" />
+        <div className="absolute left-1/2 top-4 h-0.5 w-[calc(100%-4rem)] -translate-x-1/2 -translate-y-1/2 bg-muted" />
         
         {/* Active progress line */}
         <div 
-          className="absolute left-0 top-4 h-0.5 -translate-y-1/2 bg-primary transition-all duration-300 ease-in-out" 
-          style={{ width: `${progressPercentage}%` }}
+          className="absolute left-1/2 top-4 h-0.5 -translate-x-1/2 -translate-y-1/2 bg-primary transition-all duration-300 ease-in-out" 
+          style={{ width: `calc(${progressPercentage}% * (100% - 4rem) / 100)` }}
         />
 
         {/* Steps */}
