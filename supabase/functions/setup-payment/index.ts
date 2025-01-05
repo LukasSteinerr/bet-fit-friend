@@ -19,12 +19,28 @@ serve(async (req) => {
 
     const { paymentMethodId } = await req.json()
 
-    // Create a Setup Intent to save the card without charging
+    if (!paymentMethodId) {
+      throw new Error('Payment method ID is required')
+    }
+
+    console.log('Setting up payment method:', paymentMethodId)
+
+    // First, retrieve the payment method to ensure it exists
+    const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId)
+    
+    if (!paymentMethod) {
+      throw new Error('Payment method not found')
+    }
+
+    // Create a Setup Intent with the payment method
     const setupIntent = await stripe.setupIntents.create({
-      payment_method: paymentMethodId,
+      payment_method_types: ['card'],
       confirm: true,
+      payment_method: paymentMethodId,
       usage: 'off_session', // This allows us to charge the card later
     })
+
+    console.log('Setup Intent created:', setupIntent.id)
 
     return new Response(
       JSON.stringify({ 
