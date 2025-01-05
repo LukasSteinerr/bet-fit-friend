@@ -5,6 +5,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
@@ -12,6 +14,19 @@ export const Finish = () => {
   const [verificationOpen, setVerificationOpen] = useState(true);
   const [contactOpen, setContactOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [contactDetails, setContactDetails] = useState({
+    firstName: "",
+    email: "",
+    phone: "",
+  });
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setContactDetails((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-secondary/20 py-12">
@@ -106,7 +121,48 @@ export const Finish = () => {
                   <ChevronDown className={`h-4 w-4 transition-transform ${contactOpen ? 'rotate-180' : ''}`} />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="p-4 pt-0">
-                  Contact form content here
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Add your contact details</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Add your name, e-mail and phone number.
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input
+                          id="firstName"
+                          name="firstName"
+                          placeholder="Your first name"
+                          value={contactDetails.firstName}
+                          onChange={handleContactChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="Your e-mail"
+                          value={contactDetails.email}
+                          onChange={handleContactChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          placeholder="Your phone number"
+                          value={contactDetails.phone}
+                          onChange={handleContactChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </CollapsibleContent>
               </Collapsible>
 
