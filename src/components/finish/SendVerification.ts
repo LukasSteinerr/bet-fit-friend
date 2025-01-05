@@ -17,6 +17,15 @@ export const sendVerification = async (
       });
 
       if (response.error) {
+        // Check if it's a geographic restriction error
+        if (response.error.message?.includes('Permission') || 
+            response.error.message?.includes('region') ||
+            response.data?.error?.includes('Permission') ||
+            response.data?.error?.includes('region')) {
+          throw new Error(
+            'SMS sending is not enabled for this country. Please try a different phone number or contact support.'
+          );
+        }
         throw new Error(response.error.message);
       }
 

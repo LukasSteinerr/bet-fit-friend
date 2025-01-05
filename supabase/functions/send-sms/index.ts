@@ -22,6 +22,7 @@ serve(async (req) => {
 
   try {
     const { to, message }: SMSRequest = await req.json()
+    console.log('Attempting to send SMS to:', to)
 
     // Format phone number (remove spaces, dashes, etc)
     const formattedPhone = to.replace(/\D/g, '')
@@ -42,8 +43,22 @@ serve(async (req) => {
     })
 
     const result = await twilioResponse.json()
+    console.log('Twilio API response:', result)
 
     if (!twilioResponse.ok) {
+      // Check for geographic permissions error
+      if (result.message?.includes('Permission') || result.message?.includes('region')) {
+        return new Response(
+          JSON.stringify({
+            error: 'SMS sending is not enabled for this country. Please try a different phone number or contact support.',
+            details: result.message
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        )
+      }
       throw new Error(result.message || 'Failed to send SMS')
     }
 
@@ -53,9 +68,15 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('Error sending SMS:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    })
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        tip: "If this is a geographic restriction error, you'll need to enable SMS sending for this country in your Twilio console."
+      }), 
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      }
+    )
   }
 })
