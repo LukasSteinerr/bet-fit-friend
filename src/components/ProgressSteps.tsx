@@ -49,34 +49,52 @@ export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
     }
   };
 
+  // Calculate progress percentage based on current step
+  const progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100;
+
   return (
-    <div className="mb-12 flex items-center justify-between">
-      {steps.map((step, index) => (
-        <div
-          key={index}
-          onClick={() => handleStepClick(step)}
-          className={`flex items-center gap-2 ${
-            step.completed || step.active ? "cursor-pointer" : "cursor-not-allowed opacity-50"
-          }`}
-        >
-          <div
-            className={`flex h-8 w-8 items-center justify-center rounded-full ${
-              step.active || step.completed
-                ? "bg-primary text-primary-foreground"
-                : "border border-muted bg-background text-muted-foreground"
-            }`}
-          >
-            <span className="text-sm">{step.number}</span>
-          </div>
-          <span
-            className={`text-sm ${
-              step.active || step.completed ? "text-primary font-medium" : "text-muted-foreground"
-            }`}
-          >
-            {step.label}
-          </span>
+    <div className="mb-12">
+      {/* Progress line container */}
+      <div className="relative flex items-center justify-between">
+        {/* Background line */}
+        <div className="absolute left-0 top-4 h-0.5 w-full -translate-y-1/2 bg-muted" />
+        
+        {/* Active progress line */}
+        <div 
+          className="absolute left-0 top-4 h-0.5 -translate-y-1/2 bg-primary transition-all duration-300 ease-in-out" 
+          style={{ width: `${progressPercentage}%` }}
+        />
+
+        {/* Steps */}
+        <div className="relative z-10 flex w-full items-center justify-between">
+          {steps.map((step, index) => (
+            <div
+              key={index}
+              onClick={() => handleStepClick(step)}
+              className={`flex items-center gap-2 ${
+                step.completed || step.active ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+              }`}
+            >
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                  step.active || step.completed
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-muted bg-background text-muted-foreground"
+                }`}
+              >
+                <span className="text-sm">{step.number}</span>
+              </div>
+              <span
+                className={`text-sm ${
+                  step.active || step.completed ? "text-primary font-medium" : "text-muted-foreground"
+                }`}
+              >
+                {step.label}
+              </span>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 };
