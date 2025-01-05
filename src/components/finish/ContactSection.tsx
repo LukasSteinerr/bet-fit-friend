@@ -5,13 +5,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronRight } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PhoneInput } from "./PhoneInput";
 
 interface ContactSectionProps {
   open: boolean;
@@ -33,25 +27,20 @@ export const ContactSection = ({
   onContactChange,
   onCountryCodeChange,
 }: ContactSectionProps) => {
-  const countryCodes = [
-    { code: "+1", country: "United States" },
-    { code: "+44", country: "United Kingdom" },
-    { code: "+33", country: "France" },
-    { code: "+49", country: "Germany" },
-    { code: "+81", country: "Japan" },
-    { code: "+86", country: "China" },
-    { code: "+91", country: "India" },
-    { code: "+61", country: "Australia" },
-  ];
-
   const isComplete = 
-    contactDetails.firstName.trim() !== '' && 
-    contactDetails.email.trim() !== '' && 
-    contactDetails.phone.trim() !== '';
+    contactDetails.firstName.trim() !== "" && 
+    contactDetails.email.trim() !== "" && 
+    contactDetails.phone.trim() !== "";
 
   const displayValue = isComplete 
-    ? `${contactDetails.firstName} • ${contactDetails.phone}`
+    ? `${contactDetails.firstName} • ${contactDetails.countryCode}${contactDetails.phone}`
     : undefined;
+
+  const handlePhoneChange = (value: string) => {
+    onContactChange({
+      target: { name: "phone", value },
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
 
   return (
     <>
@@ -59,13 +48,13 @@ export const ContactSection = ({
         className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground"
       >
         <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
+          <div className={`h-2 w-2 rounded-full ${isComplete ? "bg-primary" : "bg-muted"}`} />
           <span className="font-medium">Contact</span>
           {displayValue && (
             <span className="text-sm text-muted-foreground">{displayValue}</span>
           )}
         </div>
-        <ChevronRight className={`h-4 w-4 transition-transform ${open ? 'rotate-90' : ''}`} />
+        <ChevronRight className={`h-4 w-4 transition-transform ${open ? "rotate-90" : ""}`} />
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-4 p-4">
         <div className="space-y-2">
@@ -96,38 +85,12 @@ export const ContactSection = ({
               onChange={onContactChange}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <div className="flex gap-2">
-              <Select
-                value={contactDetails.countryCode}
-                onValueChange={onCountryCodeChange}
-              >
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Select country" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countryCodes.map((country) => (
-                    <SelectItem key={country.code} value={country.code}>
-                      <span>{country.code}</span>
-                      <span className="ml-2 text-muted-foreground">
-                        {country.country}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="Your phone number"
-                value={contactDetails.phone}
-                onChange={onContactChange}
-                className="flex-1"
-              />
-            </div>
-          </div>
+          <PhoneInput
+            value={contactDetails.phone}
+            countryCode={contactDetails.countryCode}
+            onChange={handlePhoneChange}
+            onCountryChange={onCountryCodeChange}
+          />
         </div>
       </CollapsibleContent>
     </>
