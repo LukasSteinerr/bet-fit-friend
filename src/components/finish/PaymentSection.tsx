@@ -36,8 +36,6 @@ const getStripe = async () => {
 };
 
 interface PaymentSectionProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   paymentVerified: boolean;
   onPaymentVerification: (methodId: string) => void;
 }
@@ -119,8 +117,6 @@ const PaymentForm = ({ onSuccess }: { onSuccess: (methodId: string) => void }) =
 };
 
 export const PaymentSection = ({ 
-  open, 
-  onOpenChange,
   paymentVerified,
   onPaymentVerification,
 }: PaymentSectionProps) => {
@@ -150,7 +146,7 @@ export const PaymentSection = ({
             </div>
           )}
         </div>
-        <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 transition-transform`} />
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-4 p-4">
         <div className="space-y-2">
