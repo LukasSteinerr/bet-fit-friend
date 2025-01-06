@@ -1,0 +1,4 @@
+project_id = "vgkereubgkfgxuhmwzwe"
+
+[functions.send-broken-notification]
+verify_jwt = false

@@ -77,6 +77,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_broken_commitments: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       send_scheduled_verifications: {
         Args: Record<PropertyKey, never>
         Returns: undefined
