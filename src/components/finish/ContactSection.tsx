@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,7 @@ interface ContactSectionProps {
 }
 
 export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) => {
-  const { register, watch, setValue, formState: { errors } } = useForm<ContactDetails>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<ContactDetails>({
     defaultValues: {
       firstName: "",
       email: "",
@@ -27,25 +27,9 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
     }
   });
 
-  // Watch all fields
-  const watchedFields = watch();
-
-  // Update parent component whenever fields change
-  useEffect(() => {
-    const isValid = watchedFields.firstName && 
-                   watchedFields.email && 
-                   watchedFields.phone && 
-                   watchedFields.countryCode;
-    
-    if (isValid) {
-      onContactDetailsChange({
-        firstName: watchedFields.firstName,
-        email: watchedFields.email,
-        phone: watchedFields.phone,
-        countryCode: watchedFields.countryCode
-      });
-    }
-  }, [watchedFields, onContactDetailsChange]);
+  const onSubmit = (data: ContactDetails) => {
+    onContactDetailsChange(data);
+  };
 
   const handlePhoneChange = (phone: string, countryCode: string) => {
     setValue('phone', phone);
@@ -64,45 +48,47 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
         <ChevronRight className="h-4 w-4 transition-transform" />
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-4 p-4">
-        <div>
-          <Label htmlFor="firstName">First Name</Label>
-          <Input
-            id="firstName"
-            {...register("firstName", { required: true })}
-            placeholder="John"
-            className="mt-1"
-          />
-          {errors.firstName && (
-            <p className="text-sm text-red-500 mt-1">First name is required</p>
-          )}
-        </div>
+        <form onChange={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <Label htmlFor="firstName">First Name</Label>
+            <Input
+              id="firstName"
+              {...register("firstName", { required: true })}
+              placeholder="John"
+              className="mt-1"
+            />
+            {errors.firstName && (
+              <p className="text-sm text-red-500 mt-1">First name is required</p>
+            )}
+          </div>
 
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            {...register("email", { 
-              required: true,
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Please enter a valid email address"
-              }
-            })}
-            placeholder="john@example.com"
-            className="mt-1"
-          />
-          {errors.email && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.email.message || "Email is required"}
-            </p>
-          )}
-        </div>
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              {...register("email", { 
+                required: true,
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Please enter a valid email address"
+                }
+              })}
+              placeholder="john@example.com"
+              className="mt-1"
+            />
+            {errors.email && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.email.message || "Email is required"}
+              </p>
+            )}
+          </div>
 
-        <div>
-          <Label>Phone Number</Label>
-          <PhoneInput onChange={handlePhoneChange} />
-        </div>
+          <div>
+            <Label>Phone Number</Label>
+            <PhoneInput onChange={handlePhoneChange} />
+          </div>
+        </form>
       </CollapsibleContent>
     </>
   );
