@@ -18,7 +18,7 @@ interface ContactSectionProps {
 }
 
 export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) => {
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<ContactDetails>({
+  const { register, setValue, watch, formState: { errors } } = useForm<ContactDetails>({
     defaultValues: {
       firstName: "",
       email: "",
@@ -27,14 +27,27 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
     }
   });
 
-  const onSubmit = (data: ContactDetails) => {
-    onContactDetailsChange(data);
-  };
-
   const handlePhoneChange = (phone: string, countryCode: string) => {
     setValue('phone', phone);
     setValue('countryCode', countryCode);
   };
+
+  // Watch form values and update parent only when all fields are filled
+  const firstName = watch('firstName');
+  const email = watch('email');
+  const phone = watch('phone');
+  const countryCode = watch('countryCode');
+
+  React.useEffect(() => {
+    if (firstName && email && phone && countryCode) {
+      onContactDetailsChange({
+        firstName,
+        email,
+        phone,
+        countryCode
+      });
+    }
+  }, [firstName, email, phone, countryCode, onContactDetailsChange]);
 
   return (
     <>
@@ -48,7 +61,7 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
         <ChevronRight className="h-4 w-4 transition-transform" />
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-4 p-4">
-        <form onChange={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
           <div>
             <Label htmlFor="firstName">First Name</Label>
             <Input
@@ -88,7 +101,7 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
             <Label>Phone Number</Label>
             <PhoneInput onChange={handlePhoneChange} />
           </div>
-        </form>
+        </div>
       </CollapsibleContent>
     </>
   );
