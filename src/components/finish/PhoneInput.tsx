@@ -15,6 +15,7 @@ interface PhoneInputProps {
 const countryCodes = [
   { value: "+1", label: "US/CA (+1)" },
   { value: "+44", label: "UK (+44)" },
+  { value: "+46", label: "SE (+46)" },
   { value: "+61", label: "AU (+61)" },
   { value: "+33", label: "FR (+33)" },
   { value: "+49", label: "DE (+49)" },
