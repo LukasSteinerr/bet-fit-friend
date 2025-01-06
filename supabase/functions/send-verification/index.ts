@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID')
 const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN')
 const TWILIO_PHONE_NUMBER = Deno.env.get('TWILIO_PHONE_NUMBER')
+const TWILIO_WHATSAPP_NUMBER = `whatsapp:${TWILIO_PHONE_NUMBER}`
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +15,7 @@ interface VerificationRequest {
   countryCode: string;
   commitmentName: string;
   frequency: string;
+  method: 'sms' | 'whatsapp';
 }
 
 serve(async (req) => {
@@ -23,16 +25,20 @@ serve(async (req) => {
   }
 
   try {
-    const { to, countryCode, commitmentName, frequency }: VerificationRequest = await req.json()
-    console.log('Attempting to send verification SMS to:', to, 'for commitment:', commitmentName)
+    const { to, countryCode, commitmentName, frequency, method }: VerificationRequest = await req.json()
+    console.log(`Attempting to send ${method} verification to:`, to, 'for commitment:', commitmentName)
 
     // Format phone number (remove spaces, dashes, etc)
     const formattedPhone = `${countryCode}${to}`.replace(/\D/g, '')
-
+    
     const message = `Did you complete your commitment to ${commitmentName} ${frequency.toLowerCase()}? Reply with YES or NO`
 
     const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`
     
+    // Prepare the "from" and "to" numbers based on the method
+    const fromNumber = method === 'whatsapp' ? TWILIO_WHATSAPP_NUMBER : TWILIO_PHONE_NUMBER
+    const toNumber = method === 'whatsapp' ? `whatsapp:+${formattedPhone}` : `+${formattedPhone}`
+
     const twilioResponse = await fetch(twilioEndpoint, {
       method: 'POST',
       headers: {
@@ -40,8 +46,8 @@ serve(async (req) => {
         'Authorization': 'Basic ' + btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
       },
       body: new URLSearchParams({
-        To: `+${formattedPhone}`,
-        From: TWILIO_PHONE_NUMBER,
+        To: toNumber,
+        From: fromNumber,
         Body: message,
       }).toString(),
     })
@@ -54,7 +60,7 @@ serve(async (req) => {
       if (result.message?.includes('Permission') || result.message?.includes('region')) {
         return new Response(
           JSON.stringify({
-            error: 'SMS sending is not enabled for this country. Please try a different phone number or contact support.',
+            error: `${method === 'sms' ? 'SMS' : 'WhatsApp'} sending is not enabled for this country. Please try a different method or contact support.`,
             details: result.message
           }),
           {
@@ -63,7 +69,7 @@ serve(async (req) => {
           }
         )
       }
-      throw new Error(result.message || 'Failed to send SMS')
+      throw new Error(result.message || `Failed to send ${method}`)
     }
 
     return new Response(JSON.stringify(result), {
@@ -71,9 +77,12 @@ serve(async (req) => {
       status: 200,
     })
   } catch (error) {
-    console.error('Error sending verification SMS:', error)
+    console.error('Error sending verification:', error)
     return new Response(
-      JSON.stringify({ error: error.message }), 
+      JSON.stringify({ 
+        error: error.message,
+        tip: "If this is a geographic restriction error, you'll need to enable the service for this country in your Twilio console."
+      }), 
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
