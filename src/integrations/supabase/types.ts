@@ -20,7 +20,10 @@ export type Database = {
           id: string
           last_verified_at: string | null
           name: string
+          payment_amount: number | null
+          payment_intent_id: string | null
           payment_method_id: string | null
+          payment_status: string | null
           payment_verified: boolean | null
           required_verifications: number | null
           stake_amount: number | null
@@ -40,7 +43,10 @@ export type Database = {
           id?: string
           last_verified_at?: string | null
           name: string
+          payment_amount?: number | null
+          payment_intent_id?: string | null
           payment_method_id?: string | null
+          payment_status?: string | null
           payment_verified?: boolean | null
           required_verifications?: number | null
           stake_amount?: number | null
@@ -60,7 +66,10 @@ export type Database = {
           id?: string
           last_verified_at?: string | null
           name?: string
+          payment_amount?: number | null
+          payment_intent_id?: string | null
           payment_method_id?: string | null
+          payment_status?: string | null
           payment_verified?: boolean | null
           required_verifications?: number | null
           stake_amount?: number | null
