@@ -91,8 +91,6 @@ export const Finish = () => {
           className="rounded-lg border bg-card text-card-foreground"
         >
           <VerificationSection 
-            open={verificationOpen}
-            onOpenChange={setVerificationOpen}
             verificationMethod={verificationMethod}
             onVerificationMethodChange={handleVerificationMethodChange}
           />
@@ -104,11 +102,13 @@ export const Finish = () => {
           className="rounded-lg border bg-card text-card-foreground"
         >
           <ContactSection 
-            open={contactOpen}
-            onOpenChange={setContactOpen}
-            contactDetails={contactDetails}
-            onContactChange={handleContactChange}
-            onCountryCodeChange={handleCountryCodeChange}
+            onContactDetailsChange={(details) => {
+              setContactDetails(details);
+              if (details.firstName && details.email && details.phone) {
+                setContactOpen(false);
+                setPaymentOpen(true);
+              }
+            }}
           />
         </Collapsible>
 
@@ -118,8 +118,6 @@ export const Finish = () => {
           className="rounded-lg border bg-card text-card-foreground"
         >
           <PaymentSection 
-            open={paymentOpen}
-            onOpenChange={setPaymentOpen}
             paymentVerified={!!paymentMethodId}
             onPaymentVerification={handlePaymentVerification}
           />

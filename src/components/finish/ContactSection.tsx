@@ -1,8 +1,11 @@
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneInput } from "./PhoneInput";
 import { Card } from "@/components/ui/card";
+import { CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 interface ContactDetails {
   firstName: string;
@@ -22,7 +25,7 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
   const watchedFields = watch();
 
   // Update parent component whenever fields change
-  React.useEffect(() => {
+  useEffect(() => {
     if (watchedFields.firstName && watchedFields.email) {
       onContactDetailsChange(watchedFields);
     }
@@ -35,7 +38,11 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
 
   return (
     <Card className="p-6">
-      <div className="space-y-4">
+      <CollapsibleTrigger className="flex w-full items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180">
+        Contact Details
+        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-4">
         <div>
           <Label htmlFor="firstName">First Name</Label>
           <Input
@@ -73,7 +80,7 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
           <Label>Phone Number</Label>
           <PhoneInput onChange={handlePhoneChange} />
         </div>
-      </div>
+      </CollapsibleContent>
     </Card>
   );
 };
