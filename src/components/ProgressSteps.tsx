@@ -20,14 +20,14 @@ export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
     {
       number: currentStep > 1 ? "✓" : "1",
       label: "Create commitment",
-      route: "/create-commitment",
+      route: "/commitment",
       active: currentStep === 1,
       completed: currentStep > 1,
     },
     {
       number: currentStep > 2 ? "✓" : "2",
       label: "Add stake",
-      route: "/add-stake",
+      route: "/stake",
       active: currentStep === 2,
       completed: currentStep > 2,
     },
