@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { PhoneInput } from "./PhoneInput";
 import { Card } from "@/components/ui/card";
 import { CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface ContactDetails {
   firstName: string;
@@ -38,11 +38,16 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
 
   return (
     <>
-      <CollapsibleTrigger className="flex w-full items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180">
-        Contact Details
-        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      <CollapsibleTrigger 
+        className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground"
+      >
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-muted" />
+          <span className="font-medium">Contact Details</span>
+        </div>
+        <ChevronRight className="h-4 w-4 transition-transform" />
       </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-4">
+      <CollapsibleContent className="space-y-4 p-4">
         <div>
           <Label htmlFor="firstName">First Name</Label>
           <Input
