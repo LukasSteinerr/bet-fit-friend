@@ -9,7 +9,6 @@ import { AuthSection } from "./finish/AuthSection";
 import { ErrorSection } from "./finish/ErrorSection";
 import { ConfirmDialog } from "./finish/ConfirmDialog";
 import { useCommitmentSubmission } from "./finish/useCommitmentSubmission";
-import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
 
 export const Finish = () => {
@@ -151,18 +150,6 @@ export const Finish = () => {
             onPaymentVerification={handlePaymentVerification}
           />
         </Collapsible>
-
-        {isComplete && (
-          <div className="mt-6">
-            <Button 
-              size="lg" 
-              className="w-full"
-              onClick={() => setShowConfirmDialog(true)}
-            >
-              Review & confirm
-            </Button>
-          </div>
-        )}
       </FinishLayout>
 
       <ConfirmDialog
