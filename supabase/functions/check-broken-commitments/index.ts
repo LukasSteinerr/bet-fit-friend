@@ -68,7 +68,9 @@ BEGIN
                 'commitmentName', commitment.name,
                 'verificationMethod', commitment.verification_method,
                 'successRate', ROUND((commitment.total_verifications::float / commitment.total_required::float) * 100),
-                'requiredRate', ROUND(commitment.required_success_rate * 100)
+                'requiredRate', ROUND(commitment.required_success_rate * 100),
+                'stakeAmount', commitment.stake_amount,
+                'charity', commitment.charity
               )
             );
         ELSE

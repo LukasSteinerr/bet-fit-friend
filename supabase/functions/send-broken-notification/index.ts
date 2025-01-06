@@ -16,6 +16,8 @@ interface NotificationRequest {
   verificationMethod: string;
   successRate: number;
   requiredRate: number;
+  stakeAmount: number;
+  charity: string;
 }
 
 serve(async (req) => {
@@ -25,7 +27,15 @@ serve(async (req) => {
   }
 
   try {
-    const { to, countryCode, commitmentName, verificationMethod, successRate, requiredRate }: NotificationRequest = await req.json()
+    const { 
+      to, 
+      countryCode, 
+      commitmentName, 
+      stakeAmount,
+      charity,
+      verificationMethod 
+    }: NotificationRequest = await req.json()
+    
     console.log('Sending broken commitment notification to:', to, 'for commitment:', commitmentName)
 
     if (verificationMethod !== 'sms') {
@@ -35,7 +45,7 @@ serve(async (req) => {
     // Format phone number (remove spaces, dashes, etc)
     const formattedPhone = `${countryCode}${to}`.replace(/\D/g, '')
 
-    const message = `Your commitment "${commitmentName}" has been marked as broken because your success rate (${successRate}%) fell below the required rate (${requiredRate}%). Keep trying and start a new commitment when you're ready!`
+    const message = `Unfortunately it seems like you broke your commitment "${commitmentName}". The $${stakeAmount} you betted will go to ${charity}. Keep your head up!`
 
     const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`
     
