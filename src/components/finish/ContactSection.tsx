@@ -32,22 +32,30 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
     setValue('countryCode', countryCode);
   };
 
-  // Watch form values and update parent only when all fields are filled
-  const firstName = watch('firstName');
-  const email = watch('email');
-  const phone = watch('phone');
-  const countryCode = watch('countryCode');
+  // Watch form values
+  const formValues = watch();
+
+  // Use a ref to track if all fields are filled
+  const prevFormValues = React.useRef(formValues);
 
   React.useEffect(() => {
-    if (firstName && email && phone && countryCode) {
-      onContactDetailsChange({
-        firstName,
-        email,
-        phone,
-        countryCode
-      });
+    // Only update if all fields are filled and values have changed
+    if (
+      formValues.firstName &&
+      formValues.email &&
+      formValues.phone &&
+      formValues.countryCode &&
+      (
+        prevFormValues.current.firstName !== formValues.firstName ||
+        prevFormValues.current.email !== formValues.email ||
+        prevFormValues.current.phone !== formValues.phone ||
+        prevFormValues.current.countryCode !== formValues.countryCode
+      )
+    ) {
+      prevFormValues.current = formValues;
+      onContactDetailsChange(formValues);
     }
-  }, [firstName, email, phone, countryCode, onContactDetailsChange]);
+  }, [formValues, onContactDetailsChange]);
 
   return (
     <>
