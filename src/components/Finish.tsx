@@ -35,23 +35,21 @@ export const Finish = () => {
     return <ErrorSection />;
   }
 
-  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setContactDetails((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleCountryCodeChange = (value: string) => {
-    setContactDetails((prev) => ({
-      ...prev,
-      countryCode: value,
-    }));
-  };
-
   const handleVerificationMethodChange = (method: 'sms' | 'whatsapp') => {
     setVerificationMethod(method);
+    if (method) {
+      setVerificationOpen(false);
+      setContactOpen(true);
+    }
+  };
+
+  const handleContactDetailsChange = (details: typeof contactDetails) => {
+    setContactDetails(details);
+    // Only proceed if all fields are filled
+    if (details.firstName && details.email && details.phone && details.countryCode) {
+      setContactOpen(false);
+      setPaymentOpen(true);
+    }
   };
 
   const handlePaymentVerification = (methodId: string) => {
@@ -69,11 +67,13 @@ export const Finish = () => {
     setShowConfirmDialog(false);
   };
 
-  const isComplete = Boolean(verificationMethod && 
+  const isComplete = Boolean(
+    verificationMethod && 
     contactDetails.firstName && 
     contactDetails.email && 
     contactDetails.phone && 
-    paymentMethodId);
+    paymentMethodId
+  );
 
   if (showAuth) {
     return <AuthSection />;
@@ -102,13 +102,8 @@ export const Finish = () => {
           className="rounded-lg border bg-card text-card-foreground"
         >
           <ContactSection 
-            onContactDetailsChange={(details) => {
-              setContactDetails(details);
-              if (details.firstName && details.email && details.phone) {
-                setContactOpen(false);
-                setPaymentOpen(true);
-              }
-            }}
+            onContactDetailsChange={handleContactDetailsChange}
+            initialValues={contactDetails}
           />
         </Collapsible>
 

@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -10,6 +10,10 @@ import {
 
 interface PhoneInputProps {
   onChange: (phone: string, countryCode: string) => void;
+  initialValue?: {
+    phone: string;
+    countryCode: string;
+  };
 }
 
 const countryCodes = [
@@ -23,10 +27,17 @@ const countryCodes = [
   { value: "+86", label: "CN (+86)" },
 ];
 
-export const PhoneInput = ({ onChange }: PhoneInputProps) => {
-  const [phone, setPhone] = useState("");
-  const [countryCode, setCountryCode] = useState("+1");
+export const PhoneInput = ({ onChange, initialValue }: PhoneInputProps) => {
+  const [phone, setPhone] = useState(initialValue?.phone || "");
+  const [countryCode, setCountryCode] = useState(initialValue?.countryCode || "+1");
   
+  useEffect(() => {
+    if (initialValue) {
+      setPhone(initialValue.phone);
+      setCountryCode(initialValue.countryCode);
+    }
+  }, [initialValue]);
+
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setPhone(value);

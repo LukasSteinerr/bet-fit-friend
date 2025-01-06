@@ -15,16 +15,12 @@ interface ContactDetails {
 
 interface ContactSectionProps {
   onContactDetailsChange: (details: ContactDetails) => void;
+  initialValues: ContactDetails;
 }
 
-export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) => {
+export const ContactSection = ({ onContactDetailsChange, initialValues }: ContactSectionProps) => {
   const { register, setValue, watch, formState: { errors } } = useForm<ContactDetails>({
-    defaultValues: {
-      firstName: "",
-      email: "",
-      phone: "",
-      countryCode: "+1"
-    }
+    defaultValues: initialValues
   });
 
   const handlePhoneChange = (phone: string, countryCode: string) => {
@@ -35,24 +31,9 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
   // Watch form values
   const formValues = watch();
 
-  // Use a ref to track if all fields are filled
-  const prevFormValues = React.useRef(formValues);
-
   React.useEffect(() => {
-    // Only update if all fields are filled and values have changed
-    if (
-      formValues.firstName &&
-      formValues.email &&
-      formValues.phone &&
-      formValues.countryCode &&
-      (
-        prevFormValues.current.firstName !== formValues.firstName ||
-        prevFormValues.current.email !== formValues.email ||
-        prevFormValues.current.phone !== formValues.phone ||
-        prevFormValues.current.countryCode !== formValues.countryCode
-      )
-    ) {
-      prevFormValues.current = formValues;
+    // Only notify parent of changes, don't auto-close
+    if (formValues.firstName && formValues.email && formValues.phone && formValues.countryCode) {
       onContactDetailsChange(formValues);
     }
   }, [formValues, onContactDetailsChange]);
@@ -107,7 +88,13 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
 
           <div>
             <Label>Phone Number</Label>
-            <PhoneInput onChange={handlePhoneChange} />
+            <PhoneInput 
+              onChange={handlePhoneChange}
+              initialValue={{
+                phone: formValues.phone,
+                countryCode: formValues.countryCode
+              }}
+            />
           </div>
         </div>
       </CollapsibleContent>
