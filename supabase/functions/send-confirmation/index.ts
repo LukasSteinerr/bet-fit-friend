@@ -25,7 +25,14 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, firstName, commitmentName, frequency, endDate, stakeAmount, charity }: EmailData = await req.json();
+    // Clone the request before reading the body
+    const clonedReq = req.clone();
+    const { to, firstName, commitmentName, frequency, endDate, stakeAmount, charity }: EmailData = await clonedReq.json();
+
+    if (!RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not set");
+      throw new Error("Email service configuration is missing");
+    }
 
     console.log("Sending email to:", to);
     console.log("Email data:", { firstName, commitmentName, frequency, endDate, stakeAmount, charity });
@@ -51,7 +58,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Commitments <commitments@resend.dev>",
+        from: "Commitments <onboarding@resend.dev>",
         to: [to],
         subject: "Your Commitment is Confirmed! 🎉",
         html: emailHtml,
@@ -62,7 +69,8 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Resend API response:", data);
 
     if (!res.ok) {
-      throw new Error(await res.text());
+      console.error("Resend API error:", data);
+      throw new Error(data.message || "Failed to send email");
     }
 
     return new Response(JSON.stringify(data), {
