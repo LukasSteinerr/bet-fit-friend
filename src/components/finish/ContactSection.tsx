@@ -1,10 +1,10 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { PhoneInput } from "./PhoneInput";
 import { CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Check } from "lucide-react";
 
 interface ContactDetails {
   firstName: string;
@@ -14,29 +14,34 @@ interface ContactDetails {
 }
 
 interface ContactSectionProps {
-  onContactDetailsChange: (details: ContactDetails) => void;
+  onSubmit: (details: ContactDetails) => void;
   initialValues: ContactDetails;
 }
 
-export const ContactSection = ({ onContactDetailsChange, initialValues }: ContactSectionProps) => {
-  const { register, setValue, watch, formState: { errors } } = useForm<ContactDetails>({
-    defaultValues: initialValues
+export const ContactSection = ({ onSubmit, initialValues }: ContactSectionProps) => {
+  const { register, handleSubmit, setValue, watch, formState: { errors, isValid } } = useForm<ContactDetails>({
+    defaultValues: initialValues,
+    mode: "onChange"
   });
 
   const handlePhoneChange = (phone: string, countryCode: string) => {
-    setValue('phone', phone);
-    setValue('countryCode', countryCode);
+    setValue('phone', phone, { shouldValidate: true });
+    setValue('countryCode', countryCode, { shouldValidate: true });
   };
 
-  // Watch form values
-  const formValues = watch();
-
-  React.useEffect(() => {
-    // Only notify parent of changes, don't auto-close
-    if (formValues.firstName && formValues.email && formValues.phone && formValues.countryCode) {
-      onContactDetailsChange(formValues);
+  const onFormSubmit = (data: ContactDetails) => {
+    if (isValid) {
+      onSubmit(data);
     }
-  }, [formValues, onContactDetailsChange]);
+  };
+
+  const watchedValues = watch();
+  const isComplete = Boolean(
+    watchedValues.firstName && 
+    watchedValues.email && 
+    watchedValues.phone && 
+    watchedValues.countryCode
+  );
 
   return (
     <>
@@ -44,13 +49,20 @@ export const ContactSection = ({ onContactDetailsChange, initialValues }: Contac
         className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground"
       >
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-muted" />
+          <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Contact Details</span>
+          {isComplete && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{watchedValues.firstName}</span>
+              <Check className="h-4 w-4 text-primary" />
+            </div>
+          )}
         </div>
         <ChevronRight className="h-4 w-4 transition-transform" />
       </CollapsibleTrigger>
+
       <CollapsibleContent className="space-y-4 p-4">
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div>
             <Label htmlFor="firstName">First Name</Label>
             <Input
@@ -91,12 +103,20 @@ export const ContactSection = ({ onContactDetailsChange, initialValues }: Contac
             <PhoneInput 
               onChange={handlePhoneChange}
               initialValue={{
-                phone: formValues.phone,
-                countryCode: formValues.countryCode
+                phone: watchedValues.phone,
+                countryCode: watchedValues.countryCode
               }}
             />
           </div>
-        </div>
+
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={!isValid}
+          >
+            Continue
+          </Button>
+        </form>
       </CollapsibleContent>
     </>
   );

@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -30,7 +30,7 @@ const countryCodes = [
 export const PhoneInput = ({ onChange, initialValue }: PhoneInputProps) => {
   const [phone, setPhone] = useState(initialValue?.phone || "");
   const [countryCode, setCountryCode] = useState(initialValue?.countryCode || "+1");
-  
+
   useEffect(() => {
     if (initialValue) {
       setPhone(initialValue.phone);
@@ -39,9 +39,9 @@ export const PhoneInput = ({ onChange, initialValue }: PhoneInputProps) => {
   }, [initialValue]);
 
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setPhone(value);
-    onChange(value, countryCode);
+    const newPhone = event.target.value.replace(/[^\d]/g, '');
+    setPhone(newPhone);
+    onChange(newPhone, countryCode);
   };
 
   const handleCountryCodeChange = (value: string) => {

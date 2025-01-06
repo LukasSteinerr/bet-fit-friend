@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Collapsible } from "@/components/ui/collapsible";
 import { VerificationSection } from "./finish/VerificationSection";
 import { ContactSection } from "./finish/ContactSection";
@@ -9,13 +9,18 @@ import { AuthSection } from "./finish/AuthSection";
 import { ErrorSection } from "./finish/ErrorSection";
 import { ConfirmDialog } from "./finish/ConfirmDialog";
 import { useCommitmentSubmission } from "./finish/useCommitmentSubmission";
+import { Button } from "./ui/button";
+import { useToast } from "./ui/use-toast";
 
 export const Finish = () => {
   const location = useLocation();
-  const [verificationOpen, setVerificationOpen] = useState(true);
-  const [contactOpen, setContactOpen] = useState(false);
-  const [paymentOpen, setPaymentOpen] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  // Section visibility states
+  const [currentSection, setCurrentSection] = useState<'verification' | 'contact' | 'payment'>('verification');
+  
+  // Form data states
   const [verificationMethod, setVerificationMethod] = useState<'sms' | 'whatsapp' | null>(null);
   const [contactDetails, setContactDetails] = useState({
     firstName: "",
@@ -24,6 +29,9 @@ export const Finish = () => {
     countryCode: "+1",
   });
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
+  
+  // UI states
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
 
   const { handleSubmit, isSubmitting } = useCommitmentSubmission();
@@ -37,34 +45,40 @@ export const Finish = () => {
 
   const handleVerificationMethodChange = (method: 'sms' | 'whatsapp') => {
     setVerificationMethod(method);
-    if (method) {
-      setVerificationOpen(false);
-      setContactOpen(true);
-    }
+    setCurrentSection('contact');
   };
 
-  const handleContactDetailsChange = (details: typeof contactDetails) => {
+  const handleContactDetailsSubmit = (details: typeof contactDetails) => {
     setContactDetails(details);
-    // Only proceed if all fields are filled
-    if (details.firstName && details.email && details.phone && details.countryCode) {
-      setContactOpen(false);
-      setPaymentOpen(true);
-    }
+    setCurrentSection('payment');
   };
 
   const handlePaymentVerification = (methodId: string) => {
     setPaymentMethodId(methodId);
+    toast({
+      title: "Payment method saved",
+      description: "Your card has been securely saved for future use.",
+    });
   };
 
-  const handleConfirm = () => {
-    handleSubmit(
-      commitmentData,
-      stakeData,
-      contactDetails,
-      verificationMethod,
-      paymentMethodId
-    );
-    setShowConfirmDialog(false);
+  const handleConfirm = async () => {
+    try {
+      await handleSubmit(
+        commitmentData,
+        stakeData,
+        contactDetails,
+        verificationMethod,
+        paymentMethodId
+      );
+      setShowConfirmDialog(false);
+      navigate('/success');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create commitment",
+        variant: "destructive",
+      });
+    }
   };
 
   const isComplete = Boolean(
@@ -86,8 +100,8 @@ export const Finish = () => {
         onSubmit={() => setShowConfirmDialog(true)}
       >
         <Collapsible
-          open={verificationOpen}
-          onOpenChange={setVerificationOpen}
+          open={currentSection === 'verification'}
+          onOpenChange={() => setCurrentSection('verification')}
           className="rounded-lg border bg-card text-card-foreground"
         >
           <VerificationSection 
@@ -97,19 +111,39 @@ export const Finish = () => {
         </Collapsible>
 
         <Collapsible
-          open={contactOpen}
-          onOpenChange={setContactOpen}
+          open={currentSection === 'contact'}
+          onOpenChange={() => {
+            if (verificationMethod) {
+              setCurrentSection('contact');
+            } else {
+              toast({
+                title: "Select verification method",
+                description: "Please select a verification method first.",
+                variant: "destructive",
+              });
+            }
+          }}
           className="rounded-lg border bg-card text-card-foreground"
         >
           <ContactSection 
-            onContactDetailsChange={handleContactDetailsChange}
+            onSubmit={handleContactDetailsSubmit}
             initialValues={contactDetails}
           />
         </Collapsible>
 
         <Collapsible
-          open={paymentOpen}
-          onOpenChange={setPaymentOpen}
+          open={currentSection === 'payment'}
+          onOpenChange={() => {
+            if (contactDetails.firstName && contactDetails.email && contactDetails.phone) {
+              setCurrentSection('payment');
+            } else {
+              toast({
+                title: "Complete contact details",
+                description: "Please fill in all contact details first.",
+                variant: "destructive",
+              });
+            }
+          }}
           className="rounded-lg border bg-card text-card-foreground"
         >
           <PaymentSection 
@@ -117,6 +151,18 @@ export const Finish = () => {
             onPaymentVerification={handlePaymentVerification}
           />
         </Collapsible>
+
+        {isComplete && (
+          <div className="mt-6">
+            <Button 
+              size="lg" 
+              className="w-full"
+              onClick={() => setShowConfirmDialog(true)}
+            >
+              Review & confirm
+            </Button>
+          </div>
+        )}
       </FinishLayout>
 
       <ConfirmDialog
