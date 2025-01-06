@@ -1,98 +1,79 @@
+import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ChevronRight } from "lucide-react";
 import { PhoneInput } from "./PhoneInput";
+import { Card } from "@/components/ui/card";
 
-interface ContactSectionProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  contactDetails: {
-    firstName: string;
-    email: string;
-    phone: string;
-    countryCode: string;
-  };
-  onContactChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onCountryCodeChange: (value: string) => void;
+interface ContactDetails {
+  firstName: string;
+  email: string;
+  phone: string;
+  countryCode: string;
 }
 
-export const ContactSection = ({
-  open,
-  onOpenChange,
-  contactDetails,
-  onContactChange,
-  onCountryCodeChange,
-}: ContactSectionProps) => {
-  const isComplete = 
-    contactDetails.firstName.trim() !== "" && 
-    contactDetails.email.trim() !== "" && 
-    contactDetails.phone.trim() !== "";
+interface ContactSectionProps {
+  onContactDetailsChange: (details: ContactDetails) => void;
+}
 
-  const displayValue = isComplete 
-    ? `${contactDetails.firstName} • ${contactDetails.countryCode}${contactDetails.phone}`
-    : undefined;
+export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) => {
+  const { register, watch, setValue, formState: { errors } } = useForm<ContactDetails>();
 
-  const handlePhoneChange = (value: string) => {
-    onContactChange({
-      target: { name: "phone", value },
-    } as React.ChangeEvent<HTMLInputElement>);
+  // Watch all fields
+  const watchedFields = watch();
+
+  // Update parent component whenever fields change
+  React.useEffect(() => {
+    if (watchedFields.firstName && watchedFields.email) {
+      onContactDetailsChange(watchedFields);
+    }
+  }, [watchedFields, onContactDetailsChange]);
+
+  const handlePhoneChange = (phone: string, countryCode: string) => {
+    setValue('phone', phone);
+    setValue('countryCode', countryCode);
   };
 
   return (
-    <>
-      <CollapsibleTrigger 
-        className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground"
-      >
-        <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${isComplete ? "bg-primary" : "bg-muted"}`} />
-          <span className="font-medium">Contact</span>
-          {displayValue && (
-            <span className="text-sm text-muted-foreground">{displayValue}</span>
+    <Card className="p-6">
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="firstName">First Name</Label>
+          <Input
+            id="firstName"
+            {...register("firstName", { required: true })}
+            placeholder="John"
+          />
+          {errors.firstName && (
+            <p className="text-sm text-red-500 mt-1">First name is required</p>
           )}
         </div>
-        <ChevronRight className={`h-4 w-4 transition-transform ${open ? "rotate-90" : ""}`} />
-      </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-4 p-4">
-        <div className="space-y-2">
-          <h3 className="font-medium">Add your contact details</h3>
-          <p className="text-sm text-muted-foreground">
-            Add your name, e-mail and phone number.
-          </p>
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              name="firstName"
-              placeholder="Your first name"
-              value={contactDetails.firstName}
-              onChange={onContactChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Your e-mail"
-              value={contactDetails.email}
-              onChange={onContactChange}
-            />
-          </div>
-          <PhoneInput
-            value={contactDetails.phone}
-            countryCode={contactDetails.countryCode}
-            onChange={handlePhoneChange}
-            onCountryChange={onCountryCodeChange}
+
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            {...register("email", { 
+              required: true,
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Please enter a valid email address"
+              }
+            })}
+            placeholder="john@example.com"
           />
+          {errors.email && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.email.message || "Email is required"}
+            </p>
+          )}
         </div>
-      </CollapsibleContent>
-    </>
+
+        <div>
+          <Label>Phone Number</Label>
+          <PhoneInput onChange={handlePhoneChange} />
+        </div>
+      </div>
+    </Card>
   );
 };

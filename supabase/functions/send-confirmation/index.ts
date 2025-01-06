@@ -34,6 +34,20 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Email service configuration is missing");
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(to)) {
+      console.error("Invalid email format:", to);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid email format. Please provide a valid email address." 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     console.log("Sending email to:", to);
     console.log("Email data:", { firstName, commitmentName, frequency, endDate, stakeAmount, charity });
 
