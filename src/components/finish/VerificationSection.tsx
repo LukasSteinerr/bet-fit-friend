@@ -3,7 +3,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface VerificationSectionProps {
   verificationMethod: 'sms' | 'whatsapp' | null;
@@ -33,7 +33,7 @@ export const VerificationSection = ({
               </span>
             )}
           </div>
-          <ChevronDown className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+          <ChevronRight className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-90" />
         </button>
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-4 p-4">
