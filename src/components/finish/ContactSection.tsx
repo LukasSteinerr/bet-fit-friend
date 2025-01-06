@@ -26,7 +26,7 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
 
   // Update parent component whenever fields change
   useEffect(() => {
-    if (watchedFields.firstName && watchedFields.email) {
+    if (watchedFields.firstName && watchedFields.email && watchedFields.phone) {
       onContactDetailsChange(watchedFields);
     }
   }, [watchedFields, onContactDetailsChange]);
@@ -37,7 +37,7 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
   };
 
   return (
-    <Card className="p-6">
+    <>
       <CollapsibleTrigger className="flex w-full items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180">
         Contact Details
         <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
@@ -81,6 +81,6 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
           <PhoneInput onChange={handlePhoneChange} />
         </div>
       </CollapsibleContent>
-    </Card>
+    </>
   );
 };

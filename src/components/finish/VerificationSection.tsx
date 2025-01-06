@@ -6,15 +6,11 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 
 interface VerificationSectionProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   verificationMethod: 'sms' | 'whatsapp' | null;
   onVerificationMethodChange: (method: 'sms' | 'whatsapp') => void;
 }
 
 export const VerificationSection = ({
-  open,
-  onOpenChange,
   verificationMethod,
   onVerificationMethodChange,
 }: VerificationSectionProps) => {
@@ -34,7 +30,7 @@ export const VerificationSection = ({
             </span>
           )}
         </div>
-        <ChevronRight className={`h-4 w-4 transition-transform ${open ? 'rotate-90' : ''}`} />
+        <ChevronRight className="h-4 w-4 transition-transform" />
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-4 p-4">
         <div className="space-y-2">
