@@ -1,16 +1,53 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProgressSteps } from "./ProgressSteps";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+
+interface Charity {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+}
 
 export const StakeSetup = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const [selectedAmount, setSelectedAmount] = useState<string>("");
   const [customAmount, setCustomAmount] = useState<string>("");
   const [selectedCharity, setSelectedCharity] = useState<string>("");
+  const [charities, setCharities] = useState<Charity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCharities = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('charities')
+          .select('*')
+          .eq('active', true);
+        
+        if (error) throw error;
+        setCharities(data || []);
+      } catch (error: any) {
+        console.error('Error fetching charities:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load charities. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCharities();
+  }, [toast]);
 
   const handleAmountSelect = (amount: string) => {
     setSelectedAmount(amount);
@@ -62,39 +99,19 @@ export const StakeSetup = () => {
                 <SelectValue placeholder="Select a charity" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="animal-shelter">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">🐾</span>
-                      <div>
-                        <p className="font-medium">Animal Shelter</p>
-                        <p className="text-sm text-muted-foreground">Support animals that don't have an owner or food.</p>
+                {charities.map((charity) => (
+                  <SelectItem key={charity.id} value={charity.id}>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{charity.icon}</span>
+                        <div>
+                          <p className="font-medium">{charity.name}</p>
+                          <p className="text-sm text-muted-foreground">{charity.description}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value="children-africa">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">🌍</span>
-                      <div>
-                        <p className="font-medium">Children in Africa</p>
-                        <p className="text-sm text-muted-foreground">Support health, education and nutrition programs for children in Africa.</p>
-                      </div>
-                    </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value="cancer-research">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">🔬</span>
-                      <div>
-                        <p className="font-medium">Cancer Research</p>
-                        <p className="text-sm text-muted-foreground">Support & help to create a world immune to cancer.</p>
-                      </div>
-                    </div>
-                  </div>
-                </SelectItem>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </Card>
