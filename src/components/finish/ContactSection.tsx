@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneInput } from "./PhoneInput";
-import { Card } from "@/components/ui/card";
 import { CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronRight } from "lucide-react";
 
@@ -19,15 +18,32 @@ interface ContactSectionProps {
 }
 
 export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) => {
-  const { register, watch, setValue, formState: { errors } } = useForm<ContactDetails>();
+  const { register, watch, setValue, formState: { errors } } = useForm<ContactDetails>({
+    defaultValues: {
+      firstName: "",
+      email: "",
+      phone: "",
+      countryCode: "+1"
+    }
+  });
 
   // Watch all fields
   const watchedFields = watch();
 
   // Update parent component whenever fields change
   useEffect(() => {
-    if (watchedFields.firstName && watchedFields.email && watchedFields.phone) {
-      onContactDetailsChange(watchedFields);
+    const isValid = watchedFields.firstName && 
+                   watchedFields.email && 
+                   watchedFields.phone && 
+                   watchedFields.countryCode;
+    
+    if (isValid) {
+      onContactDetailsChange({
+        firstName: watchedFields.firstName,
+        email: watchedFields.email,
+        phone: watchedFields.phone,
+        countryCode: watchedFields.countryCode
+      });
     }
   }, [watchedFields, onContactDetailsChange]);
 
@@ -54,6 +70,7 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
             id="firstName"
             {...register("firstName", { required: true })}
             placeholder="John"
+            className="mt-1"
           />
           {errors.firstName && (
             <p className="text-sm text-red-500 mt-1">First name is required</p>
@@ -73,6 +90,7 @@ export const ContactSection = ({ onContactDetailsChange }: ContactSectionProps) 
               }
             })}
             placeholder="john@example.com"
+            className="mt-1"
           />
           {errors.email && (
             <p className="text-sm text-red-500 mt-1">

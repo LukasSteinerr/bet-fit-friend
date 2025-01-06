@@ -1,21 +1,26 @@
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+
 interface PhoneInputProps {
   onChange: (phone: string, countryCode: string) => void;
 }
 
 export const PhoneInput = ({ onChange }: PhoneInputProps) => {
+  const [phone, setPhone] = useState("");
+  
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    // Assuming the phone number is in a specific format, you can extract the country code and phone number here
-    const countryCode = "+1"; // Default country code, you can modify this as needed
-    onChange(value, countryCode);
+    setPhone(value);
+    onChange(value, "+1"); // Using default country code for now
   };
 
   return (
-    <input
+    <Input
       type="tel"
-      placeholder="Enter your phone number"
+      placeholder="(555) 555-5555"
+      value={phone}
       onChange={handlePhoneChange}
-      className="border rounded-md p-2 w-full"
+      className="mt-1"
     />
   );
 };
