@@ -111,17 +111,7 @@ export const Finish = () => {
 
         <Collapsible
           open={currentSection === 'contact'}
-          onOpenChange={() => {
-            if (verificationMethod) {
-              setCurrentSection('contact');
-            } else {
-              toast({
-                title: "Select verification method",
-                description: "Please select a verification method first.",
-                variant: "destructive",
-              });
-            }
-          }}
+          onOpenChange={() => setCurrentSection('contact')}
           className="rounded-lg border bg-card text-card-foreground"
         >
           <ContactSection 
@@ -132,17 +122,7 @@ export const Finish = () => {
 
         <Collapsible
           open={currentSection === 'payment'}
-          onOpenChange={() => {
-            if (contactDetails.firstName && contactDetails.email && contactDetails.phone) {
-              setCurrentSection('payment');
-            } else {
-              toast({
-                title: "Complete contact details",
-                description: "Please fill in all contact details first.",
-                variant: "destructive",
-              });
-            }
-          }}
+          onOpenChange={() => setCurrentSection('payment')}
           className="rounded-lg border bg-card text-card-foreground"
         >
           <PaymentSection 
