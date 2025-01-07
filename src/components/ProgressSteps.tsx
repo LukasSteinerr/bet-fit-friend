@@ -41,8 +41,8 @@ export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
   ];
 
   const handleStepClick = (step: ProgressStep) => {
-    // Only allow navigation to completed steps or the current step
-    if (step.completed || step.active) {
+    // Allow navigation to previous steps or current step
+    if (step.completed || step.active || steps.indexOf(step) < currentStep - 1) {
       navigate(step.route, { 
         state: location.state // Preserve the existing state when navigating
       });
@@ -72,11 +72,13 @@ export const ProgressSteps = ({ currentStep }: ProgressStepsProps) => {
               key={index}
               onClick={() => handleStepClick(step)}
               className={`flex flex-col items-center gap-2 ${
-                step.completed || step.active ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+                step.completed || step.active || index < currentStep - 1
+                  ? "cursor-pointer hover:opacity-80"
+                  : "cursor-not-allowed opacity-50"
               }`}
             >
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
                   step.active || step.completed
                     ? "bg-primary text-primary-foreground"
                     : "border border-muted bg-background text-muted-foreground"
