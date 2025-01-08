@@ -124,6 +124,12 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      test_send_verification: {
+        Args: {
+          p_commitment_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

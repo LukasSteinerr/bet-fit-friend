@@ -33,11 +33,19 @@ serve(async (req) => {
     
     const message = `Did you complete your commitment to ${commitmentName} ${frequency.toLowerCase()}? Reply with YES or NO`
 
+    console.log('Sending message:', message, 'to phone:', formattedPhone)
+
     const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`
     
     // Prepare the "from" and "to" numbers based on the method
     const fromNumber = method === 'whatsapp' ? TWILIO_WHATSAPP_NUMBER : TWILIO_PHONE_NUMBER
     const toNumber = method === 'whatsapp' ? `whatsapp:+${formattedPhone}` : `+${formattedPhone}`
+
+    console.log('Making Twilio API request with:', {
+      to: toNumber,
+      from: fromNumber,
+      body: message
+    })
 
     const twilioResponse = await fetch(twilioEndpoint, {
       method: 'POST',
