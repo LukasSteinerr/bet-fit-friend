@@ -27,6 +27,20 @@ serve(async (req) => {
   try {
     console.log('Starting verification request processing...')
     
+    // Check authorization header
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader) {
+      console.error('Missing authorization header')
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { 
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+    console.log('Authorization header present')
+    
     // Validate Twilio credentials
     if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
       console.error('Missing Twilio credentials')
