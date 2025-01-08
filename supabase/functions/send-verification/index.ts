@@ -25,15 +25,23 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting verification request processing...')
+    
+    // Validate Twilio credentials
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+      console.error('Missing Twilio credentials')
+      throw new Error('Missing Twilio configuration')
+    }
+
     const { to, countryCode, commitmentName, frequency, method }: VerificationRequest = await req.json()
-    console.log(`Attempting to send ${method} verification to:`, to, 'for commitment:', commitmentName)
+    console.log('Received verification request:', { to, countryCode, commitmentName, frequency, method })
 
     // Format phone number (remove spaces, dashes, etc)
     const formattedPhone = `${countryCode}${to}`.replace(/\D/g, '')
+    console.log('Formatted phone number:', formattedPhone)
     
     const message = `Did you complete your commitment to ${commitmentName} ${frequency.toLowerCase()}? Reply with YES or NO`
-
-    console.log('Sending message:', message, 'to phone:', formattedPhone)
+    console.log('Message to send:', message)
 
     const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`
     
@@ -41,10 +49,11 @@ serve(async (req) => {
     const fromNumber = method === 'whatsapp' ? TWILIO_WHATSAPP_NUMBER : TWILIO_PHONE_NUMBER
     const toNumber = method === 'whatsapp' ? `whatsapp:+${formattedPhone}` : `+${formattedPhone}`
 
-    console.log('Making Twilio API request with:', {
+    console.log('Making Twilio API request:', {
       to: toNumber,
       from: fromNumber,
-      body: message
+      message: message,
+      endpoint: twilioEndpoint
     })
 
     const twilioResponse = await fetch(twilioEndpoint, {
@@ -66,6 +75,7 @@ serve(async (req) => {
     if (!twilioResponse.ok) {
       // Check for geographic permissions error
       if (result.message?.includes('Permission') || result.message?.includes('region')) {
+        console.error('Geographic restriction error:', result)
         return new Response(
           JSON.stringify({
             error: `${method === 'sms' ? 'SMS' : 'WhatsApp'} sending is not enabled for this country. Please try a different method or contact support.`,
@@ -77,15 +87,17 @@ serve(async (req) => {
           }
         )
       }
+      console.error('Twilio API error:', result)
       throw new Error(result.message || `Failed to send ${method}`)
     }
 
+    console.log('Successfully sent verification message')
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
   } catch (error) {
-    console.error('Error sending verification:', error)
+    console.error('Error in send-verification function:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message,
