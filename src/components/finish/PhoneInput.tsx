@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import ReactFlagsSelect from "react-flags-select";
+import { validatePhoneNumber, formatPhoneNumber, getCountryFromCode, getCodeFromCountry } from "@/utils/phoneNumberValidation";
 
 interface PhoneInputProps {
   onChange: (phone: string, countryCode: string) => void;
@@ -17,19 +12,20 @@ interface PhoneInputProps {
 }
 
 const countryCodes = [
-  { value: "+1", label: "US/CA (+1)" },
-  { value: "+44", label: "UK (+44)" },
-  { value: "+46", label: "SE (+46)" },
-  { value: "+61", label: "AU (+61)" },
-  { value: "+33", label: "FR (+33)" },
-  { value: "+49", label: "DE (+49)" },
-  { value: "+81", label: "JP (+81)" },
-  { value: "+86", label: "CN (+86)" },
+  { code: "US", dial: "+1" },
+  { code: "GB", dial: "+44" },
+  { code: "SE", dial: "+46" },
+  { code: "AU", dial: "+61" },
+  { code: "FR", dial: "+33" },
+  { code: "DE", dial: "+49" },
+  { code: "JP", dial: "+81" },
+  { code: "CN", dial: "+86" },
 ];
 
 export const PhoneInput = ({ onChange, initialValue }: PhoneInputProps) => {
   const [phone, setPhone] = useState(initialValue?.phone || "");
   const [countryCode, setCountryCode] = useState(initialValue?.countryCode || "+1");
+  const [isValid, setIsValid] = useState(true);
 
   useEffect(() => {
     if (initialValue) {
@@ -41,38 +37,58 @@ export const PhoneInput = ({ onChange, initialValue }: PhoneInputProps) => {
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newPhone = event.target.value.replace(/[^\d]/g, '');
     setPhone(newPhone);
+    
+    const isValidNumber = validatePhoneNumber(newPhone, countryCode);
+    setIsValid(isValidNumber);
+    
     onChange(newPhone, countryCode);
   };
 
-  const handleCountryCodeChange = (value: string) => {
-    setCountryCode(value);
-    onChange(phone, value);
+  const handleCountryChange = (countryCode: string) => {
+    const dialCode = countryCodes.find(c => c.code === countryCode)?.dial || "+1";
+    setCountryCode(dialCode);
+    
+    const isValidNumber = validatePhoneNumber(phone, dialCode);
+    setIsValid(isValidNumber);
+    
+    onChange(phone, dialCode);
   };
 
   return (
-    <div className="flex gap-2">
-      <Select
-        value={countryCode}
-        onValueChange={handleCountryCodeChange}
-      >
-        <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="Country" />
-        </SelectTrigger>
-        <SelectContent>
-          {countryCodes.map((code) => (
-            <SelectItem key={code.value} value={code.value}>
-              {code.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Input
-        type="tel"
-        placeholder="(555) 555-5555"
-        value={phone}
-        onChange={handlePhoneChange}
-        className="flex-1"
-      />
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <div className="w-[140px]">
+          <ReactFlagsSelect
+            selected={getCountryFromCode(countryCode)}
+            onSelect={handleCountryChange}
+            countries={countryCodes.map(c => c.code)}
+            customLabels={{
+              US: "US (+1)",
+              GB: "UK (+44)",
+              SE: "SE (+46)",
+              AU: "AU (+61)",
+              FR: "FR (+33)",
+              DE: "DE (+49)",
+              JP: "JP (+81)",
+              CN: "CN (+86)",
+            }}
+            placeholder="Select"
+            searchable={false}
+          />
+        </div>
+        <Input
+          type="tel"
+          placeholder="(555) 555-5555"
+          value={formatPhoneNumber(phone, countryCode)}
+          onChange={handlePhoneChange}
+          className={`flex-1 ${!isValid && phone ? 'border-red-500' : ''}`}
+        />
+      </div>
+      {!isValid && phone && (
+        <p className="text-sm text-red-500">
+          Please enter a valid phone number for {countryCodes.find(c => c.code === getCountryFromCode(countryCode))?.code}
+        </p>
+      )}
     </div>
   );
 };
