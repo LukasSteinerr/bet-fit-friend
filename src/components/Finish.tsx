@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Collapsible } from "@/components/ui/collapsible";
 import { VerificationSection } from "./finish/VerificationSection";
 import { ContactSection } from "./finish/ContactSection";
 import { PaymentSection } from "./finish/PaymentSection";
@@ -9,12 +10,6 @@ import { ErrorSection } from "./finish/ErrorSection";
 import { ConfirmDialog } from "./finish/ConfirmDialog";
 import { useCommitmentSubmission } from "./finish/useCommitmentSubmission";
 import { useToast } from "./ui/use-toast";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 export const Finish = () => {
   const location = useLocation();
@@ -103,33 +98,38 @@ export const Finish = () => {
         isComplete={isComplete} 
         onSubmit={() => setShowConfirmDialog(true)}
       >
-        <Accordion
-          type="single"
-          value={currentSection}
-          onValueChange={(value) => setCurrentSection(value as typeof currentSection)}
-          className="space-y-4"
+        <Collapsible
+          open={currentSection === 'verification'}
+          onOpenChange={() => setCurrentSection('verification')}
+          className="rounded-lg border bg-card text-card-foreground"
         >
-          <AccordionItem value="verification" className="rounded-lg border bg-card text-card-foreground">
-            <VerificationSection 
-              verificationMethod={verificationMethod}
-              onVerificationMethodChange={handleVerificationMethodChange}
-            />
-          </AccordionItem>
+          <VerificationSection 
+            verificationMethod={verificationMethod}
+            onVerificationMethodChange={handleVerificationMethodChange}
+          />
+        </Collapsible>
 
-          <AccordionItem value="contact" className="rounded-lg border bg-card text-card-foreground">
-            <ContactSection 
-              onSubmit={handleContactDetailsSubmit}
-              initialValues={contactDetails}
-            />
-          </AccordionItem>
+        <Collapsible
+          open={currentSection === 'contact'}
+          onOpenChange={() => setCurrentSection('contact')}
+          className="rounded-lg border bg-card text-card-foreground"
+        >
+          <ContactSection 
+            onSubmit={handleContactDetailsSubmit}
+            initialValues={contactDetails}
+          />
+        </Collapsible>
 
-          <AccordionItem value="payment" className="rounded-lg border bg-card text-card-foreground">
-            <PaymentSection 
-              paymentVerified={!!paymentMethodId}
-              onPaymentVerification={handlePaymentVerification}
-            />
-          </AccordionItem>
-        </Accordion>
+        <Collapsible
+          open={currentSection === 'payment'}
+          onOpenChange={() => setCurrentSection('payment')}
+          className="rounded-lg border bg-card text-card-foreground"
+        >
+          <PaymentSection 
+            paymentVerified={!!paymentMethodId}
+            onPaymentVerification={handlePaymentVerification}
+          />
+        </Collapsible>
       </FinishLayout>
 
       <ConfirmDialog

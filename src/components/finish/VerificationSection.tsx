@@ -1,6 +1,9 @@
-import { AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import {
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Check } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface VerificationSectionProps {
   verificationMethod: 'sms' | 'whatsapp' | null;
@@ -15,19 +18,25 @@ export const VerificationSection = ({
 
   return (
     <>
-      <AccordionTrigger className="flex w-full items-center justify-between rounded-t-lg p-4 hover:bg-accent transition-colors">
-        <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
-          <span className="font-medium">Verification</span>
-          {isComplete && (
-            <span className="text-sm text-muted-foreground">
-              {verificationMethod === 'whatsapp' ? 'WhatsApp' : 'SMS'}
-            </span>
-          )}
+      <CollapsibleTrigger 
+        className="w-full"
+      >
+        <div 
+          className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground hover:bg-accent transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-2">
+            <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
+            <span className="font-medium">Verification</span>
+            {isComplete && (
+              <span className="text-sm text-muted-foreground">
+                {verificationMethod === 'whatsapp' ? 'WhatsApp' : 'SMS'}
+              </span>
+            )}
+          </div>
+          <ChevronRight className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-90" />
         </div>
-        <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
-      </AccordionTrigger>
-      <AccordionContent className="space-y-4 p-4">
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-4 p-4">
         <div className="space-y-2">
           <h3 className="font-medium">Choose verification method</h3>
           <p className="text-sm text-muted-foreground">
@@ -54,7 +63,7 @@ export const VerificationSection = ({
             </div>
           </Button>
         </div>
-      </AccordionContent>
+      </CollapsibleContent>
     </>
   );
 };
