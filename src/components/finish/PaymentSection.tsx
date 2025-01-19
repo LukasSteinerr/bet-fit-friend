@@ -1,9 +1,6 @@
-import {
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Info, CreditCard, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Info, CreditCard, CheckCircle2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -135,7 +132,7 @@ export const PaymentSection = ({
 
   return (
     <>
-      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground">
+      <AccordionTrigger className="flex w-full items-center justify-between rounded-t-lg p-4 hover:bg-accent transition-colors">
         <div className="flex items-center gap-2">
           <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Payment Method</span>
@@ -146,9 +143,9 @@ export const PaymentSection = ({
             </div>
           )}
         </div>
-        <ChevronDown className={`h-4 w-4 transition-transform`} />
-      </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-4 p-4">
+        <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+      </AccordionTrigger>
+      <AccordionContent className="space-y-4 p-4">
         <div className="space-y-2">
           <h3 className="font-medium">Add payment details</h3>
           <p className="text-sm text-muted-foreground">
@@ -184,7 +181,7 @@ export const PaymentSection = ({
             if you fail to meet your commitment.
           </p>
         </div>
-      </CollapsibleContent>
+      </AccordionContent>
     </>
   );
 };

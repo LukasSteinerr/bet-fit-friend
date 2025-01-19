@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "./PhoneInput";
-import { CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { ChevronRight, Check } from "lucide-react";
 
 interface ContactDetails {
@@ -45,9 +45,7 @@ export const ContactSection = ({ onSubmit, initialValues }: ContactSectionProps)
 
   return (
     <>
-      <CollapsibleTrigger 
-        className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-card-foreground"
-      >
+      <AccordionTrigger className="flex w-full items-center justify-between rounded-t-lg p-4 hover:bg-accent transition-colors">
         <div className="flex items-center gap-2">
           <div className={`h-2 w-2 rounded-full ${isComplete ? 'bg-primary' : 'bg-muted'}`} />
           <span className="font-medium">Contact Details</span>
@@ -58,10 +56,10 @@ export const ContactSection = ({ onSubmit, initialValues }: ContactSectionProps)
             </div>
           )}
         </div>
-        <ChevronRight className="h-4 w-4 transition-transform" />
-      </CollapsibleTrigger>
+        <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+      </AccordionTrigger>
 
-      <CollapsibleContent className="space-y-4 p-4">
+      <AccordionContent className="space-y-4 p-4">
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div>
             <Label htmlFor="firstName">First Name</Label>
@@ -117,7 +115,7 @@ export const ContactSection = ({ onSubmit, initialValues }: ContactSectionProps)
             Continue
           </Button>
         </form>
-      </CollapsibleContent>
+      </AccordionContent>
     </>
   );
 };
