@@ -18,9 +18,30 @@ export const formatPhoneNumber = (phoneNumber: string, countryCode: string): str
 };
 
 export const getCountryFromCode = (code: string): string => {
-  return code.replace('+', '').toUpperCase();
+  const countryCode = code.replace('+', '');
+  switch (countryCode) {
+    case '1': return 'US';
+    case '44': return 'GB';
+    case '46': return 'SE';
+    case '61': return 'AU';
+    case '33': return 'FR';
+    case '49': return 'DE';
+    case '81': return 'JP';
+    case '86': return 'CN';
+    default: return 'US';
+  }
 };
 
 export const getCodeFromCountry = (country: string): string => {
-  return `+${country}`;
+  switch (country) {
+    case 'US': return '+1';
+    case 'GB': return '+44';
+    case 'SE': return '+46';
+    case 'AU': return '+61';
+    case 'FR': return '+33';
+    case 'DE': return '+49';
+    case 'JP': return '+81';
+    case 'CN': return '+86';
+    default: return '+1';
+  }
 };
